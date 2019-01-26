@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -60,6 +61,9 @@ public static Vision vision;
   @Override
   public void robotPeriodic() {
     Robot.driveTrain.writeToSmartDashboard();
+    Robot.vision.writeToSmartDashboard();
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2);
+
   }
 
   /**

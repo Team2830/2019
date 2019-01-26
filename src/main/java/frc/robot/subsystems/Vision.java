@@ -22,6 +22,11 @@ boolean hasTargets = false;
 double horizontalOffset = 0;
 double verticalOffset = 0;
 
+public Vision(){
+  NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2);
+
+}
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
@@ -33,12 +38,21 @@ double verticalOffset = 0;
   public double getHorizontalOffset(){
     return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
   }
-  public double hasTargets(){
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+  public boolean hasTargets(){
+    if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1)
+      return true;
+    return false;
   }
-  public void  writeToSmartDashboard(){
-    SmartDashboard.putNumber("LimelightHasTargets", hasTargets());
+  public double getDistance(double h2){
+    double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    double a1= 5.6;
+    double h1= 10.5;
+   return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
+  }
+    public void  writeToSmartDashboard(){
+    SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
     SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
+    SmartDashboard.putNumber("LimelightGetDistance", getDistance(25.625));
     }
   }

@@ -113,9 +113,9 @@ public double joystickDeadband =0.04;
    */
   public void visionDrive(Joystick joystick){
     double tx = Robot.vision.getHorizontalOffset();
-    double Kp = -0.1;
+    double Kp = -0.05;
     double steering_adjust = 0.0;
-    if(joystick.getRawButton(4)) {
+    if(joystick.getRawButton(4) && Robot.vision.hasTargets()) {
       SmartDashboard.putBoolean("buttonpressed",true);   
       if(tx > 1.0){
         steering_adjust = Kp*(-tx);
