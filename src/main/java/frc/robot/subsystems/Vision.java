@@ -23,7 +23,7 @@ double horizontalOffset = 0;
 double verticalOffset = 0;
 
 public Vision(){
-  NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2);
+  NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
 
 }
 

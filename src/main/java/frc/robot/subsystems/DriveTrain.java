@@ -24,11 +24,26 @@ import frc.robot.commands.DriveCommand;
  */
 public class DriveTrain extends Subsystem {
 
-  static WPI_TalonSRX talonLeft;
-  static WPI_TalonSRX talonRight;
+  public static WPI_TalonSRX talonLeft;
+  public static WPI_TalonSRX talonRight;
   static WPI_VictorSPX victorLeft;
   static WPI_VictorSPX victorRight;
-  AHRS ahrs;
+  static AHRS ahrs;
+  int collisionCount = 0;
+  boolean collisionDetected = false;
+
+  public static int MotionMagicLoop = 0;
+  public static int TimesInMotionMagic = 0;
+
+  final static double kCollisionThreshold_Delta6 = 2f;
+
+  int kPIDLoopIdx = 0;
+  int kSlotIdx = 0;
+  int kTimeoutMs = 30;
+  double kP = 0.2;
+  double kI = 0.0;
+  double kD = 0.0;
+  double peakOutput = 1.0;
 
 public DriveTrain() {
   talonLeft = new WPI_TalonSRX(15);
@@ -47,6 +62,8 @@ public DriveTrain() {
 
   victorLeft.follow(talonLeft);
   victorRight.follow(talonRight);
+
+  
 }
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
@@ -61,6 +78,7 @@ public double joystickDeadband =0.04;
 
 
   public void arcadeDrive(Joystick joystick){
+
     double[] values = drive(joystick);
     double direction = values[0], leftSpeed = values[1], rightSpeed = values[2];
     if(direction == 0 || direction == 3){
@@ -102,7 +120,20 @@ public double joystickDeadband =0.04;
         speed = throttle-steering;
       }
     }
+    
     double[] set = {direction,speed,maxInput};
+    DetectCollision();
+    if (collisionDetected == true){
+      if (collisionCount < 5){
+        speed = 0;
+        maxInput = 0;
+        collisionCount++;
+      }
+      else {
+        collisionDetected = false;
+        collisionCount = 0;
+      }
+    }
     return set;
   }
 
@@ -142,6 +173,23 @@ public double joystickDeadband =0.04;
       talonLeft.set(leftSpeed+steering_adjust);
     }
   }
+  public void resetCounters(){
+    ahrs.zeroYaw();
+    talonLeft.setSelectedSensorPosition(0, 0, 10);
+    talonRight.setSelectedSensorPosition(0, 0, 10);
+  }
+  public void driveForward(){
+  talonRight.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+  talonLeft.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+  talonLeft.config_kP(kSlotIdx, kP, kTimeoutMs);
+  talonRight.config_kP(kSlotIdx, kP, kTimeoutMs);
+  talonLeft.config_kI(kSlotIdx, kI, kTimeoutMs);
+  talonRight.config_kI(kSlotIdx, kI, kTimeoutMs);
+  talonLeft.config_kD(kSlotIdx, kD, kTimeoutMs);
+  talonRight.config_kD(kSlotIdx, kD, kTimeoutMs);
+  double leftMotorOutput = talonLeft.getMotorOutputPercent();
+  double rightMotorOutput = talonRight.getMotorOutputPercent();
+  }
 
   /**
    * 
@@ -158,6 +206,41 @@ public double joystickDeadband =0.04;
         return 0;
       }
   }
+  
+  public void DetectCollision(){
+
+    double lastWorldLinearAccelX = 0;
+    double lastWorldLinearAccelY = 0;
+
+      double currWorldLinearAccelX = ahrs.getWorldLinearAccelX();
+      double currentJerkX = currWorldLinearAccelX - lastWorldLinearAccelX;
+      lastWorldLinearAccelX = currWorldLinearAccelX;
+      double currWorldLinearAccelY = ahrs.getWorldLinearAccelY();
+      double currentJerkY = currWorldLinearAccelY - lastWorldLinearAccelY;
+      lastWorldLinearAccelY = currWorldLinearAccelY;
+
+      if ((Math.abs(currentJerkX) > kCollisionThreshold_Delta6) ||
+        (Math.abs(currentJerkY) > kCollisionThreshold_Delta6)) {
+          collisionDetected = true;
+        }
+  }
+    
+  public int getPulsesFromInches(double inches){
+		return (int)(240/Math.PI*inches);
+	}
+
+	public double getInchesFromPulses(double d){
+		return d*Math.PI/240;
+  }
+  
+  public double getAngle(){
+    return ahrs.getAngle();
+  }
+
+  public double getDistance(){
+		return(talonLeft.getSelectedSensorPosition(0) + talonRight.getSelectedSensorPosition(0))/2;
+	}
+  
 
   /**
    *  TODO: fill out comments
@@ -165,5 +248,11 @@ public double joystickDeadband =0.04;
   public void writeToSmartDashboard(){
     SmartDashboard.putNumber("Left Encoder Distance", talonLeft.getSelectedSensorPosition(0));
     SmartDashboard.putNumber("Right Encoder Distance", talonRight.getSelectedSensorPosition(0));
+    SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
+    SmartDashboard.putBoolean("Collision Detected", collisionDetected);
+    SmartDashboard.putNumber("Sensor Velocity", talonRight.getSelectedSensorPosition(kPIDLoopIdx));
+    SmartDashboard.putNumber("Sensor Position", talonRight.getActiveTrajectoryVelocity());
+    SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
+    SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
   }
 }
