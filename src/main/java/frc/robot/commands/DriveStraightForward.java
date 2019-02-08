@@ -7,38 +7,37 @@
 
 package frc.robot.commands;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.FollowerType;
-
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
-import frc.robot.subsystems.DriveTrain;
 
 public class DriveStraightForward extends Command {
 
-  public DriveStraightForward() {
+  double distance;
+
+  public DriveStraightForward(double inches) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.driveTrain);
+    distance = inches;
+    System.out.println("Constructor");
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-  //  DriveTrain.talonRight.set(ControlMode.MotionMagic, target_sensorUnits, DemandType.AuxPID, target_turn);
-  //  DriveTrain.talonLeft.follow(DriveTrain.talonRight, FollowerType.AuxOutput1);
+    Robot.driveTrain.driveForward(distance);
+    System.out.println("Init");
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.driveTrain.driveForward();
   }
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-
+    if(Robot.driveTrain.isDriveForwardComplete())
+      return true;
     return false;
   }
 

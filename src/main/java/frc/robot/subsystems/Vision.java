@@ -18,14 +18,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Vision extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-boolean hasTargets = false;
-double horizontalOffset = 0;
-double verticalOffset = 0;
+  boolean hasTargets = false;
+  double horizontalOffset = 0;
+  double verticalOffset = 0;
 
-public Vision(){
-  NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
-
-}
+  public Vision(){
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
+  }
 
   @Override
   public void initDefaultCommand() {
@@ -49,10 +48,10 @@ public Vision(){
     double h1= 10.5;
    return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
   }
-    public void  writeToSmartDashboard(){
+  public void writeToSmartDashboard(){
     SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
     SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
     SmartDashboard.putNumber("LimelightGetDistance", getDistance(25.625));
-    }
   }
+}

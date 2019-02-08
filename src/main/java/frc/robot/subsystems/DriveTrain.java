@@ -7,7 +7,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
@@ -37,13 +40,14 @@ public class DriveTrain extends Subsystem {
 
   final static double kCollisionThreshold_Delta6 = 2f;
 
-  int kPIDLoopIdx = 0;
-  int kSlotIdx = 0;
-  int kTimeoutMs = 30;
-  double kP = 0.2;
-  double kI = 0.0;
-  double kD = 0.0;
-  double peakOutput = 1.0;
+  static int kPIDLoopIdx = 0;
+  static int kSlotIdx = 0;
+  static int kTimeoutMs = 30;
+  static double kP = 0.2;
+  static double kI = 0.0;
+  static double kD = 0.0;
+  static double peakOutput = 1.0;
+  static int distance = 0;
 
 public DriveTrain() {
   talonLeft = new WPI_TalonSRX(15);
@@ -52,7 +56,7 @@ public DriveTrain() {
   victorRight = new WPI_VictorSPX(21);
   ahrs = new AHRS(SPI.Port.kMXP);
 
-  talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+   talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
   talonLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
 
   talonRight.setInverted(true);
@@ -62,6 +66,7 @@ public DriveTrain() {
 
   victorLeft.follow(talonLeft);
   victorRight.follow(talonRight);
+  resetCounters();
 
   
 }
@@ -178,17 +183,32 @@ public double joystickDeadband =0.04;
     talonLeft.setSelectedSensorPosition(0, 0, 10);
     talonRight.setSelectedSensorPosition(0, 0, 10);
   }
-  public void driveForward(){
-  talonRight.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-  talonLeft.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-  talonLeft.config_kP(kSlotIdx, kP, kTimeoutMs);
-  talonRight.config_kP(kSlotIdx, kP, kTimeoutMs);
-  talonLeft.config_kI(kSlotIdx, kI, kTimeoutMs);
-  talonRight.config_kI(kSlotIdx, kI, kTimeoutMs);
-  talonLeft.config_kD(kSlotIdx, kD, kTimeoutMs);
-  talonRight.config_kD(kSlotIdx, kD, kTimeoutMs);
-  double leftMotorOutput = talonLeft.getMotorOutputPercent();
-  double rightMotorOutput = talonRight.getMotorOutputPercent();
+
+  public void driveForward(double inches){
+    resetCounters();
+    talonRight.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+    talonLeft.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+    talonLeft.config_kP(kSlotIdx, kP, kTimeoutMs);
+    talonRight.config_kP(kSlotIdx, kP, kTimeoutMs);
+    talonLeft.config_kI(kSlotIdx, kI, kTimeoutMs);
+    talonRight.config_kI(kSlotIdx, kI, kTimeoutMs);
+    talonLeft.config_kD(kSlotIdx, kD, kTimeoutMs);
+    talonRight.config_kD(kSlotIdx, kD, kTimeoutMs);
+
+    distance = getPulsesFromInches(inches);
+    talonRight.set(ControlMode.MotionMagic, distance, DemandType.AuxPID, ahrs.getYaw());
+    talonLeft.follow(DriveTrain.talonRight, FollowerType.AuxOutput1);
+  }
+
+  public boolean isDriveForwardComplete(){
+    if(distance >= getSensorAverage()){
+      return true;
+    }
+    return false;
+  }
+
+  public static int getSensorAverage(){
+    return (talonLeft.getSelectedSensorPosition()+talonRight.getSelectedSensorPosition())/2;
   }
 
   /**
@@ -225,7 +245,7 @@ public double joystickDeadband =0.04;
         }
   }
     
-  public int getPulsesFromInches(double inches){
+  public static int getPulsesFromInches(double inches){
 		return (int)(240/Math.PI*inches);
 	}
 
@@ -250,8 +270,8 @@ public double joystickDeadband =0.04;
     SmartDashboard.putNumber("Right Encoder Distance", talonRight.getSelectedSensorPosition(0));
     SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
     SmartDashboard.putBoolean("Collision Detected", collisionDetected);
-    SmartDashboard.putNumber("Sensor Velocity", talonRight.getSelectedSensorPosition(kPIDLoopIdx));
-    SmartDashboard.putNumber("Sensor Position", talonRight.getActiveTrajectoryVelocity());
+    // SmartDashboard.putNumber("Sensor Velocity", talonRight.getSelectedSensorPosition(kPIDLoopIdx));
+    // SmartDashboard.putNumber("Sensor Position", talonRight.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
     SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
   }

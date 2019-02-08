@@ -8,6 +8,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.Button;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import frc.robot.commands.DriveStraightForward;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -48,9 +51,13 @@ public class OI {
 	// Start the command when the button is released and let it run the command
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
-	public OI(){
+  Button button1;
+  public OI(){
 		driverStick = new Joystick(0);
-		operatorStick = new Joystick(1);
+    operatorStick = new Joystick(1);
+    button1  = new JoystickButton(driverStick, 3);
+    button1.whenPressed(new DriveStraightForward(36));
+
 	}
 	public Joystick getDriverJoystick(){
 		return driverStick;
@@ -58,6 +65,6 @@ public class OI {
 	
 	public Joystick getOperatorJoystick(){
 		return operatorStick;
-	}
+  }
 }
 

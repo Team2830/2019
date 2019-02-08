@@ -45,11 +45,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     RobotMap.init();
-    oi = new OI();
     driveTrain = new DriveTrain();
     vision = new Vision();
     cargo = new Cargo();
     hatch = new Hatch();
+    oi = new OI();
     m_chooser.setDefaultOption("Default Auto", new ExampleCommand());
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
