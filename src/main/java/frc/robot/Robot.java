@@ -7,10 +7,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ExampleCommand;
@@ -18,6 +20,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Cargo;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Hatch;
 
 /**
@@ -34,6 +37,8 @@ public class Robot extends TimedRobot {
   public static Vision vision;
   public static Cargo cargo;
   public static Hatch hatch;
+  public static Climber climber;
+  public static PowerDistributionPanel pdp = new PowerDistributionPanel();
 
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -49,10 +54,12 @@ public class Robot extends TimedRobot {
     vision = new Vision();
     cargo = new Cargo();
     hatch = new Hatch();
+    climber = new Climber();
     oi = new OI();
     m_chooser.setDefaultOption("Default Auto", new ExampleCommand());
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
+    Shuffleboard.startRecording();
   }
 
   /**
@@ -67,7 +74,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     Robot.driveTrain.writeToSmartDashboard();
     Robot.vision.writeToSmartDashboard();
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2);
+    SmartDashboard.putNumber("PDP Current", pdp.getTotalCurrent());
+    SmartDashboard.putNumber("PDP Temp", pdp.getTemperature());
   }
 
   /**
@@ -97,6 +105,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    Shuffleboard.addEventMarker("Autonomous Started", EventImportance.kTrivial);
     m_autonomousCommand = m_chooser.getSelected();
 
     /*
@@ -126,6 +135,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    Shuffleboard.addEventMarker("Teleop Started", EventImportance.kTrivial);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

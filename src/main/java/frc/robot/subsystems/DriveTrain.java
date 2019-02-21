@@ -11,12 +11,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Robot;
@@ -32,12 +34,12 @@ public class DriveTrain extends Subsystem {
   static WPI_VictorSPX victorLeft;
   static WPI_VictorSPX victorRight;
   static AHRS ahrs;
+  static DifferentialDrive m_drive;
   int collisionCount = 0;
   boolean collisionDetected = false;
 
   public static int MotionMagicLoop = 0;
   public static int TimesInMotionMagic = 0;
-
   final static double kCollisionThreshold_Delta6 = 2f;
 
   static int kPIDLoopIdx = 0;
@@ -49,31 +51,35 @@ public class DriveTrain extends Subsystem {
   static double peakOutput = 1.0;
   static int distance = 0;
 
-public DriveTrain() {
-  talonLeft = new WPI_TalonSRX(15);
-  talonRight = new WPI_TalonSRX(20);
-  victorLeft = new WPI_VictorSPX(14);
-  victorRight = new WPI_VictorSPX(21);
-  ahrs = new AHRS(SPI.Port.kMXP);
-
-   talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-  talonLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-
-  talonRight.setInverted(true);
-  victorRight.setInverted(true);
-  talonLeft.setInverted(false);
-  victorLeft.setInverted(false);
-
-  victorLeft.follow(talonLeft);
-  victorRight.follow(talonRight);
-  resetCounters();
-
+  public DriveTrain() {
+    talonLeft = new WPI_TalonSRX(15);
+    talonRight = new WPI_TalonSRX(20);
+    victorLeft = new WPI_VictorSPX(21);
+    victorRight = new WPI_VictorSPX(14);
+    ahrs = new AHRS(SPI.Port.kMXP);
   
-}
+    talonLeft.configFactoryDefault();
+    talonRight.configFactoryDefault();
+    talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+    talonLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+  
+    talonRight.setInverted(true);
+    talonLeft.setInverted(true);
+    talonRight.setSensorPhase(true);
+    talonLeft.setSensorPhase(true);
+    victorLeft.follow(talonLeft);
+    victorRight.follow(talonRight);
+    victorLeft.setInverted(InvertType.FollowMaster);
+    victorRight.setInverted(InvertType.FollowMaster);
+  
+    m_drive = new DifferentialDrive(talonLeft, talonRight);
+  
+    resetCounters();
+  }
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
 
-public double joystickDeadband =0.04;
+  public double joystickDeadband =0.04;
 
   @Override
   public void initDefaultCommand() {
@@ -81,7 +87,27 @@ public double joystickDeadband =0.04;
      setDefaultCommand(new DriveCommand());
   }
 
+  public void tankDrive(Joystick joystick){
+    m_drive.tankDrive(-joystick.getRawAxis(5),-joystick.getRawAxis(1));
+    SmartDashboard.putNumber("left Tank",-joystick.getRawAxis(5));
+    SmartDashboard.putNumber("right Tank",-joystick.getRawAxis(1));
+  }
 
+  public void arcadeDrive(Joystick joystick){
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
+    SmartDashboard.putNumber("Throttle", throttle);
+    SmartDashboard.putNumber("Steering", steering);
+    m_drive.arcadeDrive(throttle, steering);
+  }
+
+  public void curvatureDrive(Joystick joystick){
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
+    m_drive.curvatureDrive(throttle, steering, joystick.getRawButton(2));
+  }
+
+/*
   public void arcadeDrive(Joystick joystick){
 
     double[] values = drive(joystick);
@@ -94,17 +120,19 @@ public double joystickDeadband =0.04;
       talonLeft.set(leftSpeed);
     }
   }
-/**
- * 
- * @param joystick
- * @return double[] 3 values, the direction, the leftSpeed and the right speed
- */
+*/
+
+  /**
+   * 
+   * @param joystick
+   * @return double[] 3 values, the direction, the leftSpeed and the right speed
+   */
   public double[] drive(Joystick joystick){
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     if (Math.abs(throttle) > 1){
       throttle = Math.copySign(1, throttle);
     }
-    double steering = 0.6*deadbanded(joystick.getRawAxis(0), joystickDeadband); 
+    double steering = 0.6*deadbanded(-joystick.getRawAxis(0), joystickDeadband); 
     double maxInput = Math.copySign(Math.max(Math.abs(throttle), Math.abs(steering)), throttle);
     double speed, direction;
     if (throttle >= 0){
@@ -143,7 +171,7 @@ public double joystickDeadband =0.04;
   }
 
   /**
-   *  TODO: fill out comments
+   *  Vision Drive used to turn based off vision target location
    * 
    * @param joystick
    */
@@ -213,36 +241,35 @@ public double joystickDeadband =0.04;
 
   /**
    * 
-   *  TODO: fill out comments
+   *  Function to set input based off deadband
    * 
    * @param input
    * @param deadband
    * @return
    */
-    public double deadbanded(double input, double deadband){
-      if(Math.abs(input)>Math.abs(deadband)){
-        return input;
-      }else{
-        return 0;
-      }
+  public double deadbanded(double input, double deadband){
+    if(Math.abs(input)>Math.abs(deadband)){
+      return input;
+    }else{
+      return 0;
+    }
   }
   
   public void DetectCollision(){
-
     double lastWorldLinearAccelX = 0;
     double lastWorldLinearAccelY = 0;
 
-      double currWorldLinearAccelX = ahrs.getWorldLinearAccelX();
-      double currentJerkX = currWorldLinearAccelX - lastWorldLinearAccelX;
-      lastWorldLinearAccelX = currWorldLinearAccelX;
-      double currWorldLinearAccelY = ahrs.getWorldLinearAccelY();
-      double currentJerkY = currWorldLinearAccelY - lastWorldLinearAccelY;
-      lastWorldLinearAccelY = currWorldLinearAccelY;
+    double currWorldLinearAccelX = ahrs.getWorldLinearAccelX();
+    double currentJerkX = currWorldLinearAccelX - lastWorldLinearAccelX;
+    lastWorldLinearAccelX = currWorldLinearAccelX;
+    double currWorldLinearAccelY = ahrs.getWorldLinearAccelY();
+    double currentJerkY = currWorldLinearAccelY - lastWorldLinearAccelY;
+    lastWorldLinearAccelY = currWorldLinearAccelY;
 
-      if ((Math.abs(currentJerkX) > kCollisionThreshold_Delta6) ||
-        (Math.abs(currentJerkY) > kCollisionThreshold_Delta6)) {
-          collisionDetected = true;
-        }
+    if ((Math.abs(currentJerkX) > kCollisionThreshold_Delta6) ||
+      (Math.abs(currentJerkY) > kCollisionThreshold_Delta6)) {
+        collisionDetected = true;
+    }
   }
     
   public static int getPulsesFromInches(double inches){
@@ -263,16 +290,40 @@ public double joystickDeadband =0.04;
   
 
   /**
-   *  TODO: fill out comments
+   *  Writes to the dashboard values (can be used for debugging)
    */
   public void writeToSmartDashboard(){
-    SmartDashboard.putNumber("Left Encoder Distance", talonLeft.getSelectedSensorPosition(0));
-    SmartDashboard.putNumber("Right Encoder Distance", talonRight.getSelectedSensorPosition(0));
-    SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
+    SmartDashboard.putNumber("Left Encoder Distance", talonLeft.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Right Encoder Distance", talonRight.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Right Encoder Velocity", talonRight.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Left Encoder Velocity", talonLeft.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Left Talon Current", talonLeft.getOutputCurrent());
+    SmartDashboard.putNumber("Right Talon Current", talonRight.getOutputCurrent());
+    SmartDashboard.putNumber("LeftTalon Current", Robot.pdp.getCurrent(15));
+    SmartDashboard.putNumber("LeftVictor Current", Robot.pdp.getCurrent(14));
+    SmartDashboard.putNumber("RightTalon Current", Robot.pdp.getCurrent(1));
+    SmartDashboard.putNumber("RigtVictor Current", Robot.pdp.getCurrent(0));
+    SmartDashboard.putData(ahrs);
+    SmartDashboard.putData(talonLeft);
     SmartDashboard.putBoolean("Collision Detected", collisionDetected);
     // SmartDashboard.putNumber("Sensor Velocity", talonRight.getSelectedSensorPosition(kPIDLoopIdx));
     // SmartDashboard.putNumber("Sensor Position", talonRight.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
     SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
+  }
+
+  public void configArcadeDrive() {
+    /*
+    talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+    talonLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+    talonRight.setInverted(false);
+    victorRight.setInverted(false);
+    talonLeft.setInverted(true);
+    victorLeft.setInverted(true);
+    talonRight.setSensorPhase(true);
+    talonLeft.setSensorPhase(true);
+    victorLeft.follow(talonLeft);
+    victorRight.follow(talonRight);
+    */
   }
 }

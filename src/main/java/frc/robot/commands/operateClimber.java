@@ -7,26 +7,48 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-
-public class DriveCommand extends Command {
-  public DriveCommand() {
+public class operateClimber extends Command {
+  public operateClimber() {
     // Use requires() here to declare subsystem dependencies
-     requires(Robot.driveTrain);
+    // eg. requires(chassis);
+    requires(Robot.climber);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.driveTrain.configArcadeDrive();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.driveTrain.arcadeDrive(Robot.oi.getDriverJoystick());
+    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+    Joystick driverStick = Robot.oi.getDriverJoystick();
+
+
+
+    if(operatorStick.getRawButton(7)){
+      if(Math.abs(driverStick.getRawAxis(5)) > 0.2){
+        Robot.climber.driveClimber(driverStick);
+      } else{
+        Robot.climber.stopClimber();
+      }
+
+      if(driverStick.getRawButton(3)){
+        Robot.climber.clamp();
+      }
+
+      if(driverStick.getRawButton(4)){
+        Robot.climber.unClamp();
+      }
+    } else{
+      Robot.climber.stopClimber();
+    }
+
   }
 
   // Make this return true when this Command no longer needs to run execute()

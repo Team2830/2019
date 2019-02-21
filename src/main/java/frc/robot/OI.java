@@ -9,8 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import frc.robot.commands.DriveStraightForward;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -51,17 +49,66 @@ public class OI {
 	// Start the command when the button is released and let it run the command
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
-  Button button1;
+  Button button1, button2, button3, button4, button5, button6, button7, button8, button9,button10, dbutton5, dbutton6,dbutton7, dbutton8;
   public OI(){
 		driverStick = new Joystick(0);
     operatorStick = new Joystick(1);
-    button1  = new JoystickButton(driverStick, 3);
-    button1.whenPressed(new DriveStraightForward(36));
 
-	}
+
+    
+    /** button1  = new JoystickButton(operatorStick, 3);
+    button1.whenPressed(new CargoUp());
+    
+    button2  = new JoystickButton(operatorStick, 2);
+    button2.whenPressed(new CargoOuttake());
+    
+    button3  = new JoystickButton(operatorStick, 1);
+    button3.whenPressed(new CargoIntake());
+
+    button4  = new JoystickButton(operatorStick, 2);
+    button4.whenPressed(new CargoStopMotors());
+
+    button5  = new JoystickButton(operatorStick, 5);
+    button5.whenPressed(new CargoDown());
+ 
+    button6  = new JoystickButton(operatorStick, 6);
+    button6.whenPressed(new HatchOut());
+
+    button7  = new JoystickButton(operatorStick, 7);
+    button7.whenPressed(new HatchIn());
+
+    button8  = new JoystickButton(operatorStick, 8);
+    button8.whenPressed(new HatchDown());
+
+    button9 = new JoystickButton(operatorStick, 10);
+    button9.whenPressed(new HatchAcquire());
+
+    button1 = new JoystickButton(operatorStick, 1);
+
+    button2 = new JoystickButton(operatorStick, 2);*/
+   
+    /**dbutton5  = new JoystickButton(driverStick, 5);
+    dbutton5.whenPressed(new ClampClimber());
+    dbutton6  = new JoystickButton(driverStick, 6);
+    dbutton6.whenPressed(new Unclamp());
+
+
+    button7  = new JoystickButton(operatorStick, 7);
+    button7.whenPressed(new ForwardClimber());
+    button7.whenReleased(new StopClimber());
+
+    button9 = new JoystickButton(driverStick, 9);
+    button9.whenPressed(new BackwardsClimber());
+    button9.whenReleased(new StopClimber());
+
+    dbutton8 = new JoystickButton(driverStick, 8);
+    dbutton8.whenPressed(new StopClimber());*/
+
+  }
 	public Joystick getDriverJoystick(){
 		return driverStick;
-	}
+  }
+  
 	
 	public Joystick getOperatorJoystick(){
 		return operatorStick;

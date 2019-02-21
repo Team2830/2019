@@ -7,26 +7,42 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-
-public class DriveCommand extends Command {
-  public DriveCommand() {
+public class operateCargo extends Command {
+  public operateCargo() {
     // Use requires() here to declare subsystem dependencies
-     requires(Robot.driveTrain);
+    // eg. requires(chassis);
+    requires(Robot.cargo);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.driveTrain.configArcadeDrive();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.driveTrain.arcadeDrive(Robot.oi.getDriverJoystick());
+    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+
+    if(operatorStick.getRawButton(1)){
+      Robot.cargo.cargoIntakeIn();
+    } else if(operatorStick.getRawButton(2)){
+      Robot.cargo.cargoIntakeOut();
+    } else{
+      Robot.cargo.stopCargoIntake();
+    }
+
+    if(operatorStick.getRawAxis(2) > .3){
+      Robot.cargo.cargoUp();
+    }
+
+    if(operatorStick.getRawAxis(3) > .3){
+      Robot.cargo.cargoDown();
+    }
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -34,7 +50,7 @@ public class DriveCommand extends Command {
   protected boolean isFinished() {
     return false;
   }
-
+         
   // Called once after isFinished returns true
   @Override
   protected void end() {

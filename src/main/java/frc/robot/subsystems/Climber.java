@@ -7,9 +7,11 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.commands.operateClimber;
 
 /**
  * This is a subsystem that manipulates the climber game piece.
@@ -17,46 +19,67 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class Climber extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  /*static Solenoid solenoid = new Solenoid(4);
-  static Spark frontRightClimber = new Spark(2);
-  static Spark frontLeftClimber = new Spark(3);
-  static Spark backRightClimber = new Spark(4);
-  static Spark backLeftClimber = new Spark(5);
-*/
+
+  static Spark rightFront = new Spark(6);
+  static Spark leftFront = new Spark(4);
+  static Spark rightBack = new Spark(3);
+  static Spark leftBack = new Spark(5);
+  static DoubleSolenoid solenoid = new DoubleSolenoid(4, 5);
+
+  public Climber(){
+    leftFront.setInverted(true);
+    leftBack.setInverted(true);
+  }
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
     // setDefaultCommand(new MySpecialCommand());
+    setDefaultCommand(new operateClimber());
   }
 
   /**
    * Sets the motors to climb up
-  public void forwardClimber(){
-    frontLeftClimber.set(.9);
-    frontRightClimber.set(.9);
-    backLeftClimber.set(.9);
-    backRightClimber.set(.9);
-  }
  */
+   public void forwardClimber(){
+    leftFront.set(.9);
+    rightFront.set(.9);
+    leftBack.set(.9);
+    rightBack.set(.9);
+  }
   
   /**
-   * Sets the motors to climb up
-  public void backwardsClimber(){
-    frontLeftClimber.set(-.5);
-    frontRightClimber.set(-.5);
-    backLeftClimber.set(-.5);
-    backRightClimber.set(-.5);
+   * Sets the motors to climb down
+   */
+   public void backwardsClimber(){
+    leftFront.set(-.9);
+    rightFront.set(-.9);
+    leftBack.set(-.9);
+    rightBack.set(-.9);
   }
- */
+
+  public void driveClimber(Joystick joystick){
+    double speed = joystick.getRawAxis(5);
+    leftFront.set(speed);
+    rightFront.set(speed);
+    leftBack.set(speed);
+    rightBack.set(speed);
+  }
   
   /**
    * Stops motors
-  public void stopClimber(){
-    frontLeftClimber.stopMotor();
-    frontRightClimber.stopMotor();
-    backLeftClimber.stopMotor();
-    backRightClimber.stopMotor();
+ */
+   public void stopClimber(){
+    leftFront.stopMotor();
+    rightFront.stopMotor();
+    leftBack.stopMotor();
+    rightBack.stopMotor();
   }
-  */
+   public void clamp(){
+      solenoid.set(DoubleSolenoid.Value.kForward);
+   }
+   public void unClamp(){
+    solenoid.set(DoubleSolenoid.Value.kReverse);
+ }
 }
   
