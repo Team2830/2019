@@ -29,8 +29,6 @@ public class operateClimber extends Command {
     Joystick operatorStick = Robot.oi.getOperatorJoystick();
     Joystick driverStick = Robot.oi.getDriverJoystick();
 
-
-
     if(operatorStick.getRawButton(7)){
       if(Math.abs(driverStick.getRawAxis(5)) > 0.2){
         Robot.climber.driveClimber(driverStick);
@@ -48,7 +46,6 @@ public class operateClimber extends Command {
     } else{
       Robot.climber.stopClimber();
     }
-
   }
 
   // Make this return true when this Command no longer needs to run execute()

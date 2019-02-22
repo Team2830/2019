@@ -35,11 +35,9 @@ public class operateHatch extends Command {
     if(operatorStick.getRawButton(4)){
       Robot.hatch.hatchOut();
     }
-   // if(Math.abs(operatorStick.getRawAxis(1)) > 0.2){
+    // if(Math.abs(operatorStick.getRawAxis(1)) > 0.2){
     Robot.hatch.driveHatch(operatorStick.getRawAxis(1));
- 
-   // }
-    
+    // }
   }
 
   // Make this return true when this Command no longer needs to run execute()

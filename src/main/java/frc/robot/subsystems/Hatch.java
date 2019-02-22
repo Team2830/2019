@@ -18,13 +18,9 @@ import edu.wpi.first.wpilibj.Spark;
 public class Hatch extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-
   static DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 6);
   static Spark hatchIntake = new Spark(2);
   
-  /*static DigitalInput forwardHatchLimitSwitch = new DigitalInput(0);
-  static DigitalInput backwardsHatchLimitSwitch = new DigitalInput(1);
-  */
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
@@ -67,32 +63,32 @@ public class Hatch extends Subsystem {
     hatchIntake.set(.5);
   }
 
+  /**
+   * Run hatch intake motor to set speed
+   */
   public void driveHatch(double speed){
     hatchIntake.set(speed);
   }
- 
   
   /**
-   * Get status of the ForwardHatch limit switch
-  public boolean isForwardHatchLimitSwitchHit(){
-    return ! forwardHatchLimitSwitch.get();
+   * Brings hatch out (solenoid runs forward)
+   */
+  public void hatchOut(){
+    hatchSolenoid.set(DoubleSolenoid.Value.kForward);
   }
- */
   
-public void hatchOut(){
-  hatchSolenoid.set(DoubleSolenoid.Value.kForward);
-}
-
-public void hatchIn(){
-  hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
-}
+  /**
+   * Brings hatch in (solenoid runs reverse)
+   */
+  public void hatchIn(){
+    hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+  }
   
   /**
    * Stops the hatch motor
    **/
   public void stopHatchIntake(){
     hatchIntake.stopMotor();
-  }
-  
+  }  
 }
   
