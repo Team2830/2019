@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
- * Add your docs here.
+ * TODO: Need Documentation Here
  */
 public class Vision extends Subsystem {
   // Put methods for controlling this subsystem
@@ -31,23 +31,42 @@ public class Vision extends Subsystem {
     // Set the default command for a subsystem here.
     // setDefaultCommand(new MySpecialCommand());
   }
+
+  /**
+   * TODO: Need Documentation Here
+   */
   public double getVerticalOffset(){
     return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
   }
+
+  /**
+   * TODO: Need Documentation Here
+   * @return
+   */
   public double getHorizontalOffset(){
     return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
   }
+
+  /**
+   * TODO: Need Documentation Here
+   */
   public boolean hasTargets(){
     if(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1)
       return true;
     return false;
   }
+
+  /**
+   * TODO: Need Documentation Here
+   */
   public double getDistance(double h2){
     double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
     double a1= 5.6;
     double h1= 10.5;
    return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
   }
+
+  
   public void writeToSmartDashboard(){
     SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());

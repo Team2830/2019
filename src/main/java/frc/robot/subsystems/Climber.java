@@ -49,7 +49,7 @@ public class Climber extends Subsystem {
   }
   
   /**
-   * Sets the motors to climb down
+   * Sets the motors to move the climber arm back
    */
    public void backwardsClimber(){
     leftFront.set(-.9);

@@ -83,6 +83,7 @@ public class Hatch extends Subsystem {
   public void hatchIn(){
     hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
   }
+ 
   
   /**
    * Stops the hatch motor
