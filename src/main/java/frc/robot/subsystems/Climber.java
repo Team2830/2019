@@ -39,7 +39,7 @@ public class Climber extends Subsystem {
   }
 
   /**
-   * Sets the motors to climb up
+   * Sets the motors to move the climber arm forward
  */
    public void forwardClimber(){
     leftFront.set(.9);
@@ -49,7 +49,7 @@ public class Climber extends Subsystem {
   }
   
   /**
-   * Sets the motors to climb down
+   * Sets the motors to move the climber arm back
    */
    public void backwardsClimber(){
     leftFront.set(-.9);
@@ -58,6 +58,10 @@ public class Climber extends Subsystem {
     rightBack.set(-.9);
   }
 
+  /**
+   * TODO: Need Documentation Here
+   * @param joystick
+   */
   public void driveClimber(Joystick joystick){
     double speed = joystick.getRawAxis(5);
     leftFront.set(speed);
@@ -75,9 +79,16 @@ public class Climber extends Subsystem {
     leftBack.stopMotor();
     rightBack.stopMotor();
   }
+
+  /**
+   * TODO: Need Documentation Here
+   */
    public void clamp(){
       solenoid.set(DoubleSolenoid.Value.kForward);
    }
+   /**
+    * TODO: Need Documentation Here
+    */
    public void unClamp(){
     solenoid.set(DoubleSolenoid.Value.kReverse);
  }

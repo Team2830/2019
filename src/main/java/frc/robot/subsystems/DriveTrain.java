@@ -25,7 +25,7 @@ import frc.robot.Robot;
 import frc.robot.commands.DriveCommand;
 
 /**
- * Add your docs here.
+ * TODO: Need Documentation Here
  */
 public class DriveTrain extends Subsystem {
 
@@ -51,6 +51,9 @@ public class DriveTrain extends Subsystem {
   static double peakOutput = 1.0;
   static int distance = 0;
 
+  /**
+   * TODO: Need Documentation Here (what happens in the constructor)
+   */
   public DriveTrain() {
     talonLeft = new WPI_TalonSRX(15);
     talonRight = new WPI_TalonSRX(20);
@@ -86,21 +89,34 @@ public class DriveTrain extends Subsystem {
     // Set the default command for a subsystem here.
      setDefaultCommand(new DriveCommand());
   }
-
+/**
+ * TODO: Need Documentation Here
+ * @param joystick
+ */
   public void tankDrive(Joystick joystick){
     m_drive.tankDrive(-joystick.getRawAxis(5),-joystick.getRawAxis(1));
+    //TODO: remove debugging SmartDashboard calls
     SmartDashboard.putNumber("left Tank",-joystick.getRawAxis(5));
     SmartDashboard.putNumber("right Tank",-joystick.getRawAxis(1));
   }
 
+  /**
+   * TODO: Need Documentation Here
+   */
   public void arcadeDrive(Joystick joystick){
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
+    //TODO: remove debugging SmartDashboard calls
     SmartDashboard.putNumber("Throttle", throttle);
     SmartDashboard.putNumber("Steering", steering);
     m_drive.arcadeDrive(throttle, steering);
   }
 
+  /**
+   * TODO: Need Documentation Here
+   * 
+   * @param joystick
+   */
   public void curvatureDrive(Joystick joystick){
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
@@ -123,6 +139,7 @@ public class DriveTrain extends Subsystem {
 */
 
   /**
+   * TODO: Need Documentation Here
    * 
    * @param joystick
    * @return double[] 3 values, the direction, the leftSpeed and the right speed
@@ -206,12 +223,22 @@ public class DriveTrain extends Subsystem {
       talonLeft.set(leftSpeed+steering_adjust);
     }
   }
+
+  /**
+   * TODO: Need Documentation Here
+   */
   public void resetCounters(){
     ahrs.zeroYaw();
     talonLeft.setSelectedSensorPosition(0, 0, 10);
     talonRight.setSelectedSensorPosition(0, 0, 10);
   }
 
+
+/**
+ * TODO: Need Documentation Here
+ * 
+ * @param inches
+ */
   public void driveForward(double inches){
     resetCounters();
     talonRight.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
@@ -228,6 +255,11 @@ public class DriveTrain extends Subsystem {
     talonLeft.follow(DriveTrain.talonRight, FollowerType.AuxOutput1);
   }
 
+  /**
+   * TODO: Need Documentation Here
+   * 
+   * @return
+   */
   public boolean isDriveForwardComplete(){
     if(distance >= getSensorAverage()){
       return true;
@@ -235,6 +267,11 @@ public class DriveTrain extends Subsystem {
     return false;
   }
 
+  /**
+   * TODO: Need Documentation Here
+   * 
+   * @return
+   */
   public static int getSensorAverage(){
     return (talonLeft.getSelectedSensorPosition()+talonRight.getSelectedSensorPosition())/2;
   }
@@ -255,6 +292,10 @@ public class DriveTrain extends Subsystem {
     }
   }
   
+  /**
+   * TODO: Need Documentation Here
+   * 
+   */
   public void DetectCollision(){
     double lastWorldLinearAccelX = 0;
     double lastWorldLinearAccelY = 0;

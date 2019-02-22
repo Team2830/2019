@@ -22,9 +22,7 @@ public class Hatch extends Subsystem {
   static DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 6);
   static Spark hatchIntake = new Spark(2);
   
-  /*static DigitalInput forwardHatchLimitSwitch = new DigitalInput(0);
-  static DigitalInput backwardsHatchLimitSwitch = new DigitalInput(1);
-  */
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
@@ -67,6 +65,10 @@ public class Hatch extends Subsystem {
     hatchIntake.set(.5);
   }
 
+  /**
+   * TODO: Need Documentation Here
+   * @param speed
+   */
   public void driveHatch(double speed){
     hatchIntake.set(speed);
   }
@@ -78,11 +80,16 @@ public class Hatch extends Subsystem {
     return ! forwardHatchLimitSwitch.get();
   }
  */
-  
+  /**
+   * TODO: Need Documentation Here
+  */
 public void hatchOut(){
   hatchSolenoid.set(DoubleSolenoid.Value.kForward);
 }
 
+/**
+ * TODO: Need Documentation Here
+ */
 public void hatchIn(){
   hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
 }
