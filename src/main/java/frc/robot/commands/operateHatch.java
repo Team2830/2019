@@ -28,11 +28,11 @@ public class operateHatch extends Command {
   protected void execute() {
     Joystick operatorStick = Robot.oi.getOperatorJoystick();
 
-    if(operatorStick.getRawButton(3)){
+    if(operatorStick.getRawButton(4)){
       Robot.hatch.hatchIn();
     }
 
-    if(operatorStick.getRawButton(4)){
+    if(operatorStick.getRawButton(3)){
       Robot.hatch.hatchOut();
     }
     // if(Math.abs(operatorStick.getRawAxis(1)) > 0.2){

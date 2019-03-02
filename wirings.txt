@@ -1,0 +1,11 @@
+Left Talon = 15
+Right Talon = 20
+Left Victor = 14
+Right Victor = 21
+Hatch = 2
+Cargo = 0 & 1
+Climber = 6, 4, 3, 5
+-----------------------------------------
+Cargo = Solenoid = 0 & 1
+Climber = Solenoid = 4 & 5
+Hatch = Solenoid = 2 & 6

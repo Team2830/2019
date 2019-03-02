@@ -71,6 +71,7 @@ public class Cargo extends Subsystem {
    * Sets the solenoid (pneumatics) to stop, making the cargo go down
    */
   public void cargoDown(){
+    //TODO: Test if the Hatch is in or not. if not, don't put cargo down
     cargoSolenoid.set(DoubleSolenoid.Value.kReverse);
     cargoUp = false;
   }

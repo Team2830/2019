@@ -16,6 +16,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -51,24 +52,40 @@ public class DriveTrain extends Subsystem {
   static double peakOutput = 1.0;
   static int distance = 0;
 
+  boolean m_LimelightHasValidTarget=  false;
+  double m_LimelightDriveCommand = 0.0;
+  double m_LimelightSteerCommand = .0;
+
   /**
    * TODO: Need Documentation Here (what happens in the constructor)
    */
   public DriveTrain() {
     talonLeft = new WPI_TalonSRX(15);
     talonRight = new WPI_TalonSRX(20);
-    victorLeft = new WPI_VictorSPX(21);
-    victorRight = new WPI_VictorSPX(14);
+    victorLeft = new WPI_VictorSPX(14);
+    victorRight = new WPI_VictorSPX(21);
     ahrs = new AHRS(SPI.Port.kMXP);
   
     talonLeft.configFactoryDefault();
     talonRight.configFactoryDefault();
     talonRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
     talonLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-  
-    talonRight.setInverted(true);
-    talonLeft.setInverted(true);
-    talonRight.setSensorPhase(true);
+    
+    talonLeft.configContinuousCurrentLimit(20, 0);
+    talonLeft.configPeakCurrentLimit(35, 0);
+    talonLeft.configPeakCurrentDuration(100, 0);
+    talonLeft.enableCurrentLimit(true);
+    talonLeft.configOpenloopRamp(0.02, 0);
+
+    talonRight.configContinuousCurrentLimit(20, 0);
+    talonRight.configPeakCurrentLimit(35, 0);
+    talonRight.configPeakCurrentDuration(100, 0);
+    talonRight.enableCurrentLimit(true);
+    talonRight.configOpenloopRamp(0.02, 0);
+
+    talonRight.setInverted(false);
+    talonLeft.setInverted(false);
+    talonRight.setSensorPhase(false);
     talonLeft.setSensorPhase(true);
     victorLeft.follow(talonLeft);
     victorRight.follow(talonRight);
@@ -105,7 +122,7 @@ public class DriveTrain extends Subsystem {
    */
   public void arcadeDrive(Joystick joystick){
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
-    double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
+    double steering = deadbanded(joystick.getRawAxis(0), joystickDeadband);
     //TODO: remove debugging SmartDashboard calls
     SmartDashboard.putNumber("Throttle", throttle);
     SmartDashboard.putNumber("Steering", steering);
@@ -193,35 +210,44 @@ public class DriveTrain extends Subsystem {
    * @param joystick
    */
   public void visionDrive(Joystick joystick){
-    double tx = Robot.vision.getHorizontalOffset();
-    double Kp = -0.05;
-    double steering_adjust = 0.0;
-    if(joystick.getRawButton(4) && Robot.vision.hasTargets()) {
-      SmartDashboard.putBoolean("buttonpressed",true);   
-      if(tx > 1.0){
-        steering_adjust = Kp*(-tx);
-      }
-      else if(tx < 1.0){
-        steering_adjust = Kp*-tx;
-      }
+    Update_Limelight_Tracking();
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    m_drive.curvatureDrive(throttle, m_LimelightSteerCommand, false);
+    
+  }
+
+  public void Update_Limelight_Tracking(){
+    final double STEER_K = 0.03;
+    final double DRIVE_K = 0.26;
+    final double DESIRED_TARGET_AREA = 13.0;
+    final double MAX_DRIVE = 0.7;
+
+    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
+
+    if (tv < 1.0){
+      m_LimelightHasValidTarget = false;
+      m_LimelightDriveCommand = 0.0;
+      m_LimelightSteerCommand = 0.0;
+      return;
     }
-    SmartDashboard.putNumber("steeringAdjust",steering_adjust);
-    Robot.vision.writeToSmartDashboard();
-    double[] values = drive(joystick);
-    double direction = values[0], leftSpeed = values[1], rightSpeed = values[2];
-    if(direction == 0){
-      talonLeft.set(rightSpeed);
-      talonRight.set(leftSpeed-steering_adjust);
-    } else if(values[0] == 1){
-      talonRight.set(rightSpeed);
-      talonLeft.set(leftSpeed+steering_adjust);
-    } else if(values[0] == 2){
-      talonRight.set(rightSpeed);
-      talonLeft.set(leftSpeed-steering_adjust);
-    } else{
-      talonRight.set(rightSpeed);
-      talonLeft.set(leftSpeed+steering_adjust);
+
+    m_LimelightHasValidTarget = true;
+
+    // Start with proportional steering
+    double steer_cmd = tx * STEER_K;
+    m_LimelightSteerCommand = steer_cmd;
+
+    // try to drive forward until the target area reaches our desired area
+    double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
+
+    // don't let the robot drive too fast into goal.
+    if (drive_cmd > MAX_DRIVE){
+      drive_cmd = MAX_DRIVE;
     }
+    m_LimelightDriveCommand = drive_cmd;
   }
 
   /**

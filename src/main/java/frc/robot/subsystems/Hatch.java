@@ -20,6 +20,7 @@ public class Hatch extends Subsystem {
   // here. Call these from Commands.
   static DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 6);
   static Spark hatchIntake = new Spark(2);
+  boolean hatchIn = true;
   
   @Override
   public void initDefaultCommand() {
@@ -75,6 +76,7 @@ public class Hatch extends Subsystem {
    */
   public void hatchOut(){
     hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+    hatchIn = false;
   }
   
   /**
@@ -82,6 +84,7 @@ public class Hatch extends Subsystem {
    */
   public void hatchIn(){
     hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+    hatchIn = true;
   }
  
   

@@ -23,8 +23,7 @@ public class Vision extends Subsystem {
   double verticalOffset = 0;
 
   public Vision(){
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
-  }
+   }
 
   @Override
   public void initDefaultCommand() {
