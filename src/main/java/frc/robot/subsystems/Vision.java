@@ -23,7 +23,10 @@ public class Vision extends Subsystem {
   double verticalOffset = 0;
 
   public Vision(){
-   }
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+  }
 
   @Override
   public void initDefaultCommand() {
@@ -62,14 +65,17 @@ public class Vision extends Subsystem {
     double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
     double a1= 5.6;
     double h1= 10.5;
-   return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
+    return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
   }
 
-  
   public void writeToSmartDashboard(){
     SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
     SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
     SmartDashboard.putNumber("LimelightGetDistance", getDistance(25.625));
+  }
+
+  public void setPipeline(int pipeline){
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(pipeline);
   }
 }

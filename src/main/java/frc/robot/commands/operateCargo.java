@@ -36,11 +36,11 @@ public class operateCargo extends Command {
       Robot.cargo.stopCargoIntake();
     }
 
-    if(operatorStick.getRawAxis(2) > .3){
+    if(operatorStick.getRawAxis(3) > .3){
       Robot.cargo.cargoUp();
     }
 
-    if(operatorStick.getRawAxis(3) > .3){
+    if(operatorStick.getRawAxis(2) > .3){
       Robot.cargo.cargoDown();
     }
   }

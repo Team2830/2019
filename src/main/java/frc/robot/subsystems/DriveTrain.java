@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Robot;
@@ -54,7 +55,7 @@ public class DriveTrain extends Subsystem {
 
   boolean m_LimelightHasValidTarget=  false;
   double m_LimelightDriveCommand = 0.0;
-  double m_LimelightSteerCommand = .0;
+  double m_LimelightSteerCommand = 0.0;
 
   /**
    * TODO: Need Documentation Here (what happens in the constructor)
@@ -75,13 +76,13 @@ public class DriveTrain extends Subsystem {
     talonLeft.configPeakCurrentLimit(35, 0);
     talonLeft.configPeakCurrentDuration(100, 0);
     talonLeft.enableCurrentLimit(true);
-    talonLeft.configOpenloopRamp(0.02, 0);
+    talonLeft.configOpenloopRamp(0.2, 0);
 
     talonRight.configContinuousCurrentLimit(20, 0);
     talonRight.configPeakCurrentLimit(35, 0);
     talonRight.configPeakCurrentDuration(100, 0);
     talonRight.enableCurrentLimit(true);
-    talonRight.configOpenloopRamp(0.02, 0);
+    talonRight.configOpenloopRamp(0.2, 0);
 
     talonRight.setInverted(false);
     talonLeft.setInverted(false);
@@ -210,6 +211,8 @@ public class DriveTrain extends Subsystem {
    * @param joystick
    */
   public void visionDrive(Joystick joystick){
+
+    
     Update_Limelight_Tracking();
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     m_drive.curvatureDrive(throttle, m_LimelightSteerCommand, false);
@@ -239,6 +242,7 @@ public class DriveTrain extends Subsystem {
     // Start with proportional steering
     double steer_cmd = tx * STEER_K;
     m_LimelightSteerCommand = steer_cmd;
+    SmartDashboard.putNumber("steerValue",m_LimelightSteerCommand);
 
     // try to drive forward until the target area reaches our desired area
     double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;

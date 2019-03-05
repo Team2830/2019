@@ -76,8 +76,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("PDP Current", pdp.getTotalCurrent());
     SmartDashboard.putNumber("PDP Temp", pdp.getTemperature());
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
-  
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
   }
 
   /**
