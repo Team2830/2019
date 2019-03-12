@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.JoystickRumble;
 import frc.robot.commands.operateClimber;
 
 /**
@@ -25,6 +27,8 @@ public class Climber extends Subsystem {
   static Spark rightBack = new Spark(3);
   static Spark leftBack = new Spark(5);
   static DoubleSolenoid solenoid = new DoubleSolenoid(4, 5);
+
+  static boolean isClamped = false;
 
   public Climber(){
     leftFront.setInverted(true);
@@ -63,10 +67,16 @@ public class Climber extends Subsystem {
    */
   public void driveClimber(Joystick joystick){
     double speed = joystick.getRawAxis(5);
-    leftFront.set(speed);
-    rightFront.set(speed);
-    leftBack.set(speed);
-    rightBack.set(speed);
+    SmartDashboard.putNumber("DriverJoystickSpeed", speed);
+    if (speed < 0 && isClamped){
+      speed = 0;
+      new JoystickRumble(joystick);
+    }
+
+     leftFront.set(speed);
+     rightFront.set(speed);
+     leftBack.set(speed);
+     rightBack.set(speed);
   }
   
   /**
@@ -84,6 +94,7 @@ public class Climber extends Subsystem {
    */
   public void clamp(){
     solenoid.set(DoubleSolenoid.Value.kForward);
+    isClamped = true;
   }
   
   /**
@@ -91,5 +102,6 @@ public class Climber extends Subsystem {
    */
   public void unClamp(){
     solenoid.set(DoubleSolenoid.Value.kReverse);
+    isClamped = false;
   }
 }

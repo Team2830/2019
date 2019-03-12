@@ -215,12 +215,12 @@ public class DriveTrain extends Subsystem {
     
     Update_Limelight_Tracking();
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
-    m_drive.curvatureDrive(throttle, m_LimelightSteerCommand, false);
+    m_drive.arcadeDrive(throttle, m_LimelightSteerCommand);
     
   }
 
   public void Update_Limelight_Tracking(){
-    final double STEER_K = 0.03;
+    final double STEER_K = 0.07;
     final double DRIVE_K = 0.26;
     final double DESIRED_TARGET_AREA = 13.0;
     final double MAX_DRIVE = 0.7;
@@ -241,9 +241,13 @@ public class DriveTrain extends Subsystem {
 
     // Start with proportional steering
     double steer_cmd = tx * STEER_K;
+    if (getDistance() < 16){
+      steer_cmd = 0;
+    }else {
     m_LimelightSteerCommand = steer_cmd;
     SmartDashboard.putNumber("steerValue",m_LimelightSteerCommand);
-
+    }
+    
     // try to drive forward until the target area reaches our desired area
     double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
 

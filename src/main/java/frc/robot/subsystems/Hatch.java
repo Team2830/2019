@@ -8,6 +8,8 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.commands.operateHatch;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Spark;
@@ -21,6 +23,8 @@ public class Hatch extends Subsystem {
   static DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 6);
   static Spark hatchIntake = new Spark(2);
   boolean hatchIn = true;
+  boolean hatchDown = false;
+  boolean hatchUp = true;
   
   @Override
   public void initDefaultCommand() {
@@ -54,14 +58,38 @@ public class Hatch extends Subsystem {
    * Sets the motor to move the hatch down
    */
   public void hatchDown(){
-    hatchIntake.set(-.5);
+    if (hatchDown == true){
+      hatchIntake.set(0);
+    }
+    else if (Robot.pdp.getCurrent(4) > 4){
+      hatchIntake.set(0);
+      hatchDown = true;
+    }
+    else {
+      hatchIntake.set(-.5);
+      hatchDown = false;
+    }
+    
   }
 
   /**
    * Sets the motor to move the hatch up
    */
   public void hatchUp(){
-    hatchIntake.set(.5);
+/**    if (hatchUp == true){
+      hatchIntake.set(0);
+    }
+    else*/
+    SmartDashboard.putNumber("Hatch Amps", Robot.pdp.getCurrent(4));
+
+    if (Robot.pdp.getCurrent(4) > 4){
+      hatchIntake.set(0);
+      hatchUp = true;
+    }
+    else {
+      hatchIntake.set(.5);
+      hatchUp = false;
+    } 
   }
 
   /**

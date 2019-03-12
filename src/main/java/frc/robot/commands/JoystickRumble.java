@@ -8,55 +8,46 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
 
-public class operateClimber extends Command {
-  public operateClimber() {
+public class JoystickRumble extends Command {
+  Joystick joystick;
+  int count = 0;
+  public JoystickRumble(Joystick j) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-    requires(Robot.climber);
+    joystick = j;
+
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+  joystick.setRumble(RumbleType.kLeftRumble, 1);
+  joystick.setRumble(RumbleType.kRightRumble, 1);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Joystick operatorStick = Robot.oi.getOperatorJoystick();
-    Joystick driverStick = Robot.oi.getDriverJoystick();
-
-    if(operatorStick.getRawButton(8)){
-      if(Math.abs(driverStick.getRawAxis(5)) > 0.2){
-        Robot.climber.driveClimber(driverStick);
-      } else{
-        Robot.climber.stopClimber();
-      }
-
-      if(driverStick.getRawButton(1)){
-        Robot.climber.clamp();
-      }
-
-      if(driverStick.getRawButton(2)){
-        Robot.climber.unClamp();
-      }
-    } else{
-      Robot.climber.stopClimber();
-    }
+    count++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
+    if(count > 20){
+      return true;
+    }
     return false;
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    joystick.setRumble(RumbleType.kLeftRumble, 0);
+    joystick.setRumble(RumbleType.kRightRumble, 0);
   }
 
   // Called when another command which requires one or more of the same

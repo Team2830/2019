@@ -62,12 +62,24 @@ public class Vision extends Subsystem {
    * TODO: Need Documentation Here
    */
   public double getDistance(double h2){
-    double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-    double a1= 5.6;
-    double h1= 10.5;
-    return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
+    if(hasTargets()){
+      double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+      double a1= 28.4;
+      double h1= 13.9;
+      return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
+    }
+    return 0;
   }
 
+  public void changeStream(){
+    if (    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").getDouble(0)>1){
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    } else {
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(
+         NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").getDouble(0)+1);
+    }
+  
+  }
   public void writeToSmartDashboard(){
     SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
