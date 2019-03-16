@@ -18,6 +18,8 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,7 +31,7 @@ import frc.robot.commands.DriveCommand;
 /**
  * TODO: Need Documentation Here
  */
-public class DriveTrain extends Subsystem {
+public class DriveTrain extends Subsystem implements PIDOutput {
 
   public static WPI_TalonSRX talonLeft;
   public static WPI_TalonSRX talonRight;
@@ -39,6 +41,12 @@ public class DriveTrain extends Subsystem {
   static DifferentialDrive m_drive;
   int collisionCount = 0;
   boolean collisionDetected = false;
+  PIDController turnController;
+  boolean startingVisionDrive = false;
+  double visionYaw, visionX, visionY;
+  double rotatePower = 0;
+  double visionDriveX = 0;
+  double visionDriveY = 0;
 
   public static int MotionMagicLoop = 0;
   public static int TimesInMotionMagic = 0;
@@ -53,6 +61,7 @@ public class DriveTrain extends Subsystem {
   static double peakOutput = 1.0;
   static int distance = 0;
 
+  Vision vision;
   boolean m_LimelightHasValidTarget=  false;
   double m_LimelightDriveCommand = 0.0;
   double m_LimelightSteerCommand = 0.0;
@@ -92,9 +101,13 @@ public class DriveTrain extends Subsystem {
     victorRight.follow(talonRight);
     victorLeft.setInverted(InvertType.FollowMaster);
     victorRight.setInverted(InvertType.FollowMaster);
-  
+    turnController = new PIDController(0.03, 0, 0, 0, ahrs, this);
+    turnController.setInputRange (-180.0f, 180.0f);
+    turnController.setOutputRange(-1.0, 1.0);
+    turnController.setAbsoluteTolerance(2.0f);
+
     m_drive = new DifferentialDrive(talonLeft, talonRight);
-  
+    vision = Robot.vision;
     resetCounters();
   }
   // Put methods for controlling this subsystem
@@ -141,21 +154,6 @@ public class DriveTrain extends Subsystem {
     m_drive.curvatureDrive(throttle, steering, joystick.getRawButton(2));
   }
 
-/*
-  public void arcadeDrive(Joystick joystick){
-
-    double[] values = drive(joystick);
-    double direction = values[0], leftSpeed = values[1], rightSpeed = values[2];
-    if(direction == 0 || direction == 3){
-      talonLeft.set(rightSpeed);
-      talonRight.set(leftSpeed);
-    } else{
-      talonRight.set(rightSpeed);
-      talonLeft.set(leftSpeed);
-    }
-  }
-*/
-
   /**
    * TODO: Need Documentation Here
    * 
@@ -163,6 +161,8 @@ public class DriveTrain extends Subsystem {
    * @return double[] 3 values, the direction, the leftSpeed and the right speed
    */
   public double[] drive(Joystick joystick){
+    turnController.disable();
+    startingVisionDrive = true;
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     if (Math.abs(throttle) > 1){
       throttle = Math.copySign(1, throttle);
@@ -219,6 +219,28 @@ public class DriveTrain extends Subsystem {
     
   }
 
+  /**
+   * TODO: method description
+   * 
+   */
+  public void enhancedVisionDrive(Joystick joystick){
+    
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+
+    if (startingVisionDrive && Robot.vision.hasTargets() && Robot.vision.get3DYaw() != 0) {
+      visionDriveX = getPulsesFromInches(Robot.vision.get3DX());
+      visionDriveY = getPulsesFromInches(Robot.vision.get3DY());
+      startingVisionDrive = false;
+      turnController.enable();
+      turnController.setSetpoint(ahrs.getAngle() + Robot.vision.get3DYaw());
+     }
+     if (! Robot.vision.hasTargets()){
+       throttle = 0;
+     }
+    Update_Limelight_Tracking();
+    m_drive.arcadeDrive(throttle, rotatePower);
+  }
+
   public void Update_Limelight_Tracking(){
     final double STEER_K = 0.07;
     final double DRIVE_K = 0.26;
@@ -230,10 +252,12 @@ public class DriveTrain extends Subsystem {
     double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
     double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
 
-    if (tv < 1.0){
+    
+
+    if (!Robot.vision.hasTargets()){
       m_LimelightHasValidTarget = false;
       m_LimelightDriveCommand = 0.0;
-      m_LimelightSteerCommand = 0.0;
+      //m_LimelightSee  rCommand = 0.0;
       return;
     }
 
@@ -241,7 +265,7 @@ public class DriveTrain extends Subsystem {
 
     // Start with proportional steering
     double steer_cmd = tx * STEER_K;
-    if (getDistance() < 16){
+    if (Robot.vision.getDistance() < 16){
       steer_cmd = 0;
     }else {
     m_LimelightSteerCommand = steer_cmd;
@@ -346,8 +370,53 @@ public class DriveTrain extends Subsystem {
         collisionDetected = true;
     }
   }
+
+  	/**
+	 * Checks the gyro against setAngle.
+	 * 
+	 * If the difference (gyro angle - set angle) is greater than 1, 
+	 * turn the robot slightly to the left.
+	 * 
+	 * If the difference (gyro angle - set angle) is less than -1,
+	 * turn the robot slightly to the right.
+	 * 
+	 * @param presetAngle The preset angle
+	 * @param throttle The default driving speed
+	 */
+	public void driveStraight(double throttle){
+		/**TODO remove the check for turncontroller and just force the disablePID. **/
+		if(turnController.isEnabled() && this.onTarget()){
+			this.disablePID();
+		}
+		if(!turnController.isEnabled()){ /**TODO remove this loop. just run it...*/
+			if(throttle > 0){
+				if (ahrs.getAngle() > 1){ 
+					talonLeft.set(throttle*.60);
+					talonRight.set(throttle);
+				}else if(ahrs.getAngle()< -1){
+					talonLeft.set(throttle);
+					talonRight.set(throttle*.60);
+				}else{
+					talonLeft.set(throttle);
+					talonRight.set(throttle);
+				}
+			}
+			else{
+				if (ahrs.getAngle() > 1){
+					talonLeft.set(throttle);
+					talonRight.set(throttle*.60);
+				}else if(ahrs.getAngle()< -1){
+					talonLeft.set(throttle*.60);
+					talonRight.set(throttle);
+				}else{
+					talonLeft.set(throttle);
+					talonRight.set(throttle);
+				}
+			}
+		}
+	}
     
-  public static int getPulsesFromInches(double inches){
+  public int getPulsesFromInches(double inches){
 		return (int)(240/Math.PI*inches);
 	}
 
@@ -361,8 +430,24 @@ public class DriveTrain extends Subsystem {
 
   public double getDistance(){
 		return(talonLeft.getSelectedSensorPosition(0) + talonRight.getSelectedSensorPosition(0))/2;
-	}
+  }
   
+  public double getAccelerationX(){
+		return ahrs.getWorldLinearAccelX();
+	}
+	public double getAccelerationY(){
+		return ahrs.getWorldLinearAccelY();
+  }
+  public void setOpenloopRamp(double rampTime){
+		talonLeft.configOpenloopRamp(rampTime, 10);
+		talonRight.configOpenloopRamp(rampTime, 10);
+  }
+  public void disablePID(){
+		turnController.disable();
+	}
+	public boolean onTarget(){
+		return turnController.onTarget();
+	}
 
   /**
    *  Writes to the dashboard values (can be used for debugging)
@@ -379,12 +464,16 @@ public class DriveTrain extends Subsystem {
     SmartDashboard.putNumber("RightTalon Current", Robot.pdp.getCurrent(1));
     SmartDashboard.putNumber("RigtVictor Current", Robot.pdp.getCurrent(0));
     SmartDashboard.putData(ahrs);
+    SmartDashboard.putNumber("Gyro", ahrs.getAngle());
     SmartDashboard.putData(talonLeft);
     SmartDashboard.putBoolean("Collision Detected", collisionDetected);
-    // SmartDashboard.putNumber("Sensor Velocity", talonRight.getSelectedSensorPosition(kPIDLoopIdx));
-    // SmartDashboard.putNumber("Sensor Position", talonRight.getActiveTrajectoryVelocity());
     SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
     SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
+    SmartDashboard.putNumber("Rotate Power", rotatePower);
+    SmartDashboard.putData("turn controller",turnController);
+  }
+  public void pidWrite(double output){
+    rotatePower = output;
   }
 
   public void configArcadeDrive() {

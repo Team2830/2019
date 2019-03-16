@@ -87,6 +87,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
   }
 
   @Override
@@ -107,6 +108,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
     Shuffleboard.addEventMarker("Autonomous Started", EventImportance.kTrivial);
     m_autonomousCommand = m_chooser.getSelected();
 
@@ -137,6 +139,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
     Shuffleboard.addEventMarker("Teleop Started", EventImportance.kTrivial);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

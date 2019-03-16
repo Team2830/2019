@@ -26,6 +26,7 @@ public class Vision extends Subsystem {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+
   }
 
   @Override
@@ -57,15 +58,26 @@ public class Vision extends Subsystem {
       return true;
     return false;
   }
+public double get3DYaw(){
+  return NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[4];
+}
 
+public double get3DX(){
+  return NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[0];
+}
+
+public double get3DY(){
+  return NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[1];
+}
   /**
    * TODO: Need Documentation Here
    */
-  public double getDistance(double h2){
+  public double getDistance(){
     if(hasTargets()){
       double a2 = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
       double a1= 28.4;
       double h1= 13.9;
+      double h2 = 26;
       return (h2-h1)/(Math.tan((a1+a2)*Math.PI/180));
     }
     return 0;
@@ -84,7 +96,15 @@ public class Vision extends Subsystem {
     SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
     SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
-    SmartDashboard.putNumber("LimelightGetDistance", getDistance(25.625));
+    SmartDashboard.putNumber("LimelightGetDistance", getDistance());
+    try {
+      SmartDashboard.putNumber("Yaw", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[4]);
+      SmartDashboard.putNumber("CamtranX", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[0]);
+      SmartDashboard.putNumber("CamtranY", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[1]);
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+
   }
 
   public void setPipeline(int pipeline){
