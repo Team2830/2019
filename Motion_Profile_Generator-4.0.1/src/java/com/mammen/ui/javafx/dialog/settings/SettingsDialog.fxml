@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<DialogPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
+   <buttonTypes>
+      <ButtonType fx:constant="APPLY" />
+      <ButtonType fx:constant="CANCEL" />
+   </buttonTypes>
+   <header>
+      <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" spacing="20.0">
+         <children>
+            <AnchorPane prefWidth="191.0" style="-fx-background-color: #f0f7ff;" HBox.hgrow="NEVER">
+               <children>
+                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" onMouseClicked="#btn_gen_styles" prefHeight="25.0" style="-fx-background-color: #80000000;" text="General" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" onMouseClicked="#btn_csv_styles" prefHeight="25.0" style="-fx-background-color: #40000000;" text="CSV" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button fx:id="btn_generator" accessibleText="General" graphicTextGap="45.0" layoutY="71.0" mnemonicParsing="false" onAction="#showGeneratorSettings" onMouseClicked="#btn_generatorStyles" prefHeight="25.0" style="-fx-background-color: #40000000;" text="Generator" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="MAGIC" layoutX="18.0" layoutY="38.0" size="15" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="FILE" layoutX="18.0" layoutY="63.0" size="15" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="COGS" layoutX="18.0" layoutY="88.0" size="15" />
+               </children>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </AnchorPane>
+            <AnchorPane HBox.hgrow="ALWAYS">
+               <children>
+                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="22.0" prefWidth="427.0" VBox.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Drag elements you want to export into the right list." />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="427.0" VBox.vgrow="NEVER">
+                                 <children>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Available Elements" />
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Elements in CSV" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" prefHeight="140.0" prefWidth="427.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <ListView fx:id="lst_availableElements" onDragDetected="#lst_aval_onDragDetected" onDragDone="#lst_aval_onDragDone" onDragDropped="#lst_avail_onDragDrop" onDragOver="#lst_avail_onDragOver" prefWidth="200.0" />
+                                    <ListView fx:id="lst_chosenElements" onDragDetected="#lst_chos_onDragDetected" onDragDone="#lst_chos_onDragDone" onDragDropped="#lst_chos_onDragDrop" onDragOver="#lst_chos_onDragOver" prefWidth="200.0" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="pnl_general" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="150.0" prefWidth="455.0" vgap="10.0">
+                          <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Label text="Position Chart Background:" />
+                              <TextField fx:id="txtOverlayDir" editable="false" GridPane.columnIndex="1" />
+                              <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Load image..." GridPane.columnIndex="2" />
+                              <ChoiceBox fx:id="choSourceDisplayType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
+                              <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="pnl_generator" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <VBox spacing="20.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                 <children>
+                                    <Label text="Generator:" />
+                                    <ChoiceBox fx:id="cho_generatorType" prefWidth="150.0" />
+                                 </children>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
+                              </HBox>
+                              <Pane fx:id="pnl_pfV1Vars">
+                                 <children>
+                                    <fx:include fx:id="pathfinderV1Vars" source="generator_vars/PathfinderV1VarsUI.fxml" />
+                                 </children>
+                              </Pane>
+                           </children>
+                           <padding>
+                              <Insets top="10.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </Pane>
+               </children>
+            </AnchorPane>
+         </children>
+         <padding>
+            <Insets left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </header>
+</DialogPane>

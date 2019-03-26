@@ -26,7 +26,7 @@ public class DriveCommand extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    if (Robot.oi.getDriverJoystick().getRawButton(2)){
+    if (Robot.oi.getDriverJoystick().getRawButton(7)){
       Robot.driveTrain.visionDrive(Robot.oi.getDriverJoystick());
     }else{
     Robot.driveTrain.arcadeDrive(Robot.oi.getDriverJoystick());

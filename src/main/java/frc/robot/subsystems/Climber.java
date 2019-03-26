@@ -8,11 +8,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.JoystickRumble;
 import frc.robot.commands.operateClimber;
 
 /**
@@ -22,17 +18,10 @@ public class Climber extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
 
-  static Spark rightFront = new Spark(6);
-  static Spark leftFront = new Spark(4);
-  static Spark rightBack = new Spark(3);
-  static Spark leftBack = new Spark(5);
-  static DoubleSolenoid solenoid = new DoubleSolenoid(4, 5);
-
-  static boolean isClamped = false;
-
+  static DoubleSolenoid frontSolenoid = new DoubleSolenoid(3, 4);
+  static DoubleSolenoid backSolenoid = new DoubleSolenoid(5, 7);
+  
   public Climber(){
-    leftFront.setInverted(true);
-    leftBack.setInverted(true);
   }
 
   @Override
@@ -43,65 +32,30 @@ public class Climber extends Subsystem {
   }
 
   /**
-   * Sets the motors to climb up
+   * Front up (front solenoid run forward)
    */
-   public void forwardClimber(){
-    leftFront.set(.9);
-    rightFront.set(.9);
-    leftBack.set(.9);
-    rightBack.set(.9);
+  public void frontUp(){
+    frontSolenoid.set(DoubleSolenoid.Value.kForward);
   }
   
   /**
-   * Sets the motors to move the climber arm back
+   * Front down (front solenoid run reverse)
    */
-   public void backwardsClimber(){
-    leftFront.set(-.9);
-    rightFront.set(-.9);
-    leftBack.set(-.9);
-    rightBack.set(-.9);
+  public void frontDown(){
+    frontSolenoid.set(DoubleSolenoid.Value.kReverse);
   }
 
   /**
-   * Drives climber up/down based off joystick by setting speeds of spark motors
+   * Back up (back solenoid run forward)
    */
-  public void driveClimber(Joystick joystick){
-    double speed = joystick.getRawAxis(5);
-    SmartDashboard.putNumber("DriverJoystickSpeed", speed);
-    if (speed < 0 && isClamped){
-      speed = 0;
-      new JoystickRumble(joystick);
-    }
-
-     leftFront.set(speed);
-     rightFront.set(speed);
-     leftBack.set(speed);
-     rightBack.set(speed);
+  public void backUp(){
+    backSolenoid.set(DoubleSolenoid.Value.kForward);
   }
   
   /**
-   * Stops motors
+   * Back down (back solenoid run reverse)
    */
-  public void stopClimber(){
-    leftFront.stopMotor();
-    rightFront.stopMotor();
-    leftBack.stopMotor();
-    rightBack.stopMotor();
-  }
-
-  /**
-   * Climber clamps (solenoid run forward)
-   */
-  public void clamp(){
-    solenoid.set(DoubleSolenoid.Value.kForward);
-    isClamped = true;
-  }
-  
-  /**
-   * Climber unclamps (solenoid run reverse)
-   */
-  public void unClamp(){
-    solenoid.set(DoubleSolenoid.Value.kReverse);
-    isClamped = false;
+  public void backDown(){
+    backSolenoid.set(DoubleSolenoid.Value.kReverse);
   }
 }

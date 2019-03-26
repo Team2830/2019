@@ -7,11 +7,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-public class BackwardsClimber extends Command {
-  public BackwardsClimber() {
+public class ClimberBackUp extends Command {
+  boolean done = false;
+
+  public ClimberBackUp() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.climber);
@@ -25,13 +28,20 @@ public class BackwardsClimber extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.climber.backwardsClimber();
+    Joystick operatorJoystick = Robot.oi.getOperatorJoystick();
+    Joystick driverStick = Robot.oi.getDriverJoystick();
+    if(operatorJoystick.getRawButton(7)){
+      if(driverStick.getRawButton(2)){
+        Robot.climber.backUp();
+      }
+    }
+    done = true;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
+    return done;
   }
 
   // Called once after isFinished returns true

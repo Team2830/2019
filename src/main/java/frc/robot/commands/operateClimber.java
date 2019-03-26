@@ -7,53 +7,63 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Robot;
+import edu.wpi.first.wpilibj.Joystick;
 
-public class operateClimber extends Command {
+public class operateClimber extends CommandGroup {
   public operateClimber() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.climber);
   }
 
-  // Called just before this Command runs the first time
-  @Override
-  protected void initialize() {
-  }
+  public void execute() {
+    // Add Commands here:
+    // e.g. addSequential(new Command1());
+    // addSequential(new Command2());
+    // these will run in order.
 
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  protected void execute() {
-    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+    // To run multiple commands at the same time,
+    // use addParallel()
+    // e.g. addParallel(new Command1());
+    // addSequential(new Command2());
+    // Command1 and Command2 will run in parallel.
+
+    // A command group will require all of the subsystems that each member
+    // would require.
+    // e.g. if Command1 requires chassis, and Command2 requires arm,
+    // a CommandGroup containing them would require both the chassis and the
+    // arm.
+
+   /** addSequential(new ClimberFrontUp());
+    addSequential(new DriveDistance(11.625));
+    addSequential(new ClimberBackUp());
+    addSequential(new ClimberFrontDown());
+    addSequential(new DriveDistance(5.125));
+    addSequential(new ClimberBackDown());
+    addSequential(new DriveDistance(10));*/
     Joystick driverStick = Robot.oi.getDriverJoystick();
 
-    if(operatorStick.getRawButton(8)){
-      if(Math.abs(driverStick.getRawAxis(5)) > 0.2){
-        Robot.climber.driveClimber(driverStick);
-      } else{
-        Robot.climber.stopClimber();
-      }
-
-      if(driverStick.getRawButton(1)){
-        Robot.climber.clamp();
-      }
-
-      if(driverStick.getRawButton(2)){
-        Robot.climber.unClamp();
-      }
-    } else{
-      Robot.climber.stopClimber();
+    if(driverStick.getRawButton(1)){
+      Robot.climber.backDown();
+    } else if(driverStick.getRawButton(2)){
+      Robot.climber.backUp();}
+      else if(driverStick.getRawButton(3)){
+        Robot.climber.frontDown();}
+        else if(driverStick.getRawButton(4)){
+          Robot.climber.frontUp();
+        }
+      
     }
-  }
 
-  // Make this return true when this Command no longer needs to run execute()
+    // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
     return false;
   }
-
+         
   // Called once after isFinished returns true
   @Override
   protected void end() {
@@ -64,4 +74,4 @@ public class operateClimber extends Command {
   @Override
   protected void interrupted() {
   }
-}
+  }

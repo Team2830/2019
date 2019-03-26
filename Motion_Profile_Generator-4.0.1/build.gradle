@@ -1,0 +1,98 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'idea'
+    id 'eclipse'
+
+    id 'org.openjfx.javafxplugin' version '0.0.5'
+    id "com.github.johnrengelman.shadow" version "4.0.3"
+}
+
+
+mainClassName = 'com.mammen.main.Main'
+version = "4.0.1"
+
+project.sourceCompatibility = 11.0
+project.targetCompatibility = 11.0
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        url = uri( "https://dev.imjac.in/maven/" )
+    }
+}
+
+
+dependencies {
+    // JavaFX cross platform packages
+    compile( "org.openjfx:javafx-graphics:11:win" )
+    compile( "org.openjfx:javafx-graphics:11:linux" )
+    compile( "org.openjfx:javafx-graphics:11:mac" )
+
+    // FontAwesome Icons
+    compile( 'de.jensd:fontawesomefx-commons:9.1.2' )
+    compile( 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2' )
+
+    // For loading native libs
+    compile( "jaci.jniloader:JNILoader:1.0.1" )
+
+    // Pathfinder V1
+    compile( "jaci.pathfinder:Pathfinder-Java:2019.1.10" )
+
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:windowsx86" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:windowsx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:osxx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:linuxx86" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:linuxx86-64" )
+
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:windowsx86" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:windowsx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:osxx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86-64" )
+
+    // Pathfinder V2
+//    compile( "grpl.pathfinder:Pathfinder-Java:2.0.0-prealpha" )
+//
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:windowsx86" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:windowsx86-64" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:osxx86-64" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:linuxx86" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:linuxx86-64" )
+}
+
+
+javafx {
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
+}
+
+
+sourceSets {
+    // Set top level dir of the java code
+    main.java {
+        srcDirs = ['src/java']
+        include '**/*.java'
+    }
+
+    // Set the top level dir of our resources
+    main.resources {
+        srcDirs = ['src/java', 'src/resources']
+        exclude '**/*.java', 'lib'
+    }
+}
+
+
+jar {
+    manifest {
+        attributes( "Main-Class": mainClassName,
+                    "Version": version )
+    }
+}
+
+
+wrapper {
+    // Set the version of our gradle wrapper
+    gradleVersion = '5.0'
+}

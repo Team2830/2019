@@ -39,7 +39,7 @@ public class Cargo extends Subsystem {
    */
   public void cargoIntakeIn(){
     cargoIntakeFront.set(-1);
-    cargoIntakeBack.set(-1);
+    cargoIntakeBack.set(-.6);
   }
     
   /**
@@ -47,7 +47,7 @@ public class Cargo extends Subsystem {
    */ 
   public void cargoIntakeOut(){
     cargoIntakeFront.set(1);
-    cargoIntakeBack.set(1);
+    cargoIntakeBack.set(.6);
   }
   
   /**

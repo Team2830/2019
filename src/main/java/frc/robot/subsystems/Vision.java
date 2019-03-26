@@ -58,7 +58,7 @@ public class Vision extends Subsystem {
       return true;
     return false;
   }
-public double get3DYaw(){
+ public double get3DYaw(){
   return NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[4];
 }
 
@@ -97,13 +97,13 @@ public double get3DY(){
     SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
     SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
     SmartDashboard.putNumber("LimelightGetDistance", getDistance());
-    try {
+    /** try {
       SmartDashboard.putNumber("Yaw", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[4]);
       SmartDashboard.putNumber("CamtranX", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[0]);
       SmartDashboard.putNumber("CamtranY", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[1]);
     } catch (Exception e) {
       System.out.println(e);
-    }
+    }*/
 
   }
 

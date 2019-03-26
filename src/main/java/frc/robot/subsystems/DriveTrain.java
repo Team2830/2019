@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Robot;
@@ -51,6 +50,9 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   public static int MotionMagicLoop = 0;
   public static int TimesInMotionMagic = 0;
   final static double kCollisionThreshold_Delta6 = 2f;
+
+  public static final int LEFT_ENCODER = 0;
+	public static final int RIGHT_ENCODER = 1;
 
   static int kPIDLoopIdx = 0;
   static int kSlotIdx = 0;
@@ -120,10 +122,11 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     // Set the default command for a subsystem here.
      setDefaultCommand(new DriveCommand());
   }
-/**
- * TODO: Need Documentation Here
- * @param joystick
- */
+
+  /**
+   * TODO: Need Documentation Here
+   * @param joystick
+   */
   public void tankDrive(Joystick joystick){
     m_drive.tankDrive(-joystick.getRawAxis(5),-joystick.getRawAxis(1));
     //TODO: remove debugging SmartDashboard calls
@@ -211,34 +214,9 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * @param joystick
    */
   public void visionDrive(Joystick joystick){
-
-    
     Update_Limelight_Tracking();
     double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     m_drive.arcadeDrive(throttle, m_LimelightSteerCommand);
-    
-  }
-
-  /**
-   * TODO: method description
-   * 
-   */
-  public void enhancedVisionDrive(Joystick joystick){
-    
-    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
-
-    if (startingVisionDrive && Robot.vision.hasTargets() && Robot.vision.get3DYaw() != 0) {
-      visionDriveX = getPulsesFromInches(Robot.vision.get3DX());
-      visionDriveY = getPulsesFromInches(Robot.vision.get3DY());
-      startingVisionDrive = false;
-      turnController.enable();
-      turnController.setSetpoint(ahrs.getAngle() + Robot.vision.get3DYaw());
-     }
-     if (! Robot.vision.hasTargets()){
-       throttle = 0;
-     }
-    Update_Limelight_Tracking();
-    m_drive.arcadeDrive(throttle, rotatePower);
   }
 
   public void Update_Limelight_Tracking(){
@@ -252,25 +230,28 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
     double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
 
-    
-
     if (!Robot.vision.hasTargets()){
       m_LimelightHasValidTarget = false;
       m_LimelightDriveCommand = 0.0;
-      //m_LimelightSee  rCommand = 0.0;
+      m_LimelightSteerCommand = 0.0;
       return;
     }
-
     m_LimelightHasValidTarget = true;
 
+    double steer_cmd = 0;
+    if (Robot.vision.getDistance() >= 16){
+      steer_cmd = 0.3;
+      Math.copySign(steer_cmd, tx);  
+    }
+
     // Start with proportional steering
-    double steer_cmd = tx * STEER_K;
+    /*double steer_cmd = tx * STEER_K;
     if (Robot.vision.getDistance() < 16){
       steer_cmd = 0;
-    }else {
+    }*/
+    
     m_LimelightSteerCommand = steer_cmd;
     SmartDashboard.putNumber("steerValue",m_LimelightSteerCommand);
-    }
     
     // try to drive forward until the target area reaches our desired area
     double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
@@ -291,12 +272,11 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     talonRight.setSelectedSensorPosition(0, 0, 10);
   }
 
-
-/**
- * TODO: Need Documentation Here
- * 
- * @param inches
- */
+  /**
+   * TODO: Need Documentation Here
+   * 
+   * @param inches
+   */
   public void driveForward(double inches){
     resetCounters();
     talonRight.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
@@ -313,6 +293,16 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     talonLeft.follow(DriveTrain.talonRight, FollowerType.AuxOutput1);
   }
 
+  public int getEncoderValue(int encoder){
+		if (encoder == LEFT_ENCODER){
+			return talonLeft.getSelectedSensorPosition(0);
+		}
+		else if(encoder == RIGHT_ENCODER){
+			return talonRight.getSelectedSensorPosition(0);
+		}
+		return 0;
+	}
+
   /**
    * TODO: Need Documentation Here
    * 
@@ -325,6 +315,21 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     return false;
   }
 
+  public void stopDriving(){
+		talonLeft.set(0);
+		talonRight.set(0);
+  }
+  
+  public void setRight(double output){
+		talonRight.set(-output);
+  }
+  
+	public void setLeft(double output){
+		talonLeft.set(output);
+  }
+  
+
+
   /**
    * TODO: Need Documentation Here
    * 
@@ -335,9 +340,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   /**
-   * 
-   *  Function to set input based off deadband
-   * 
+   *  Function to set input based off deadband 
    * @param input
    * @param deadband
    * @return
@@ -371,7 +374,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     }
   }
 
-  	/**
+  /**
 	 * Checks the gyro against setAngle.
 	 * 
 	 * If the difference (gyro angle - set angle) is greater than 1, 
@@ -434,17 +437,21 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   
   public double getAccelerationX(){
 		return ahrs.getWorldLinearAccelX();
-	}
+  }
+  
 	public double getAccelerationY(){
 		return ahrs.getWorldLinearAccelY();
   }
+
   public void setOpenloopRamp(double rampTime){
 		talonLeft.configOpenloopRamp(rampTime, 10);
 		talonRight.configOpenloopRamp(rampTime, 10);
   }
+
   public void disablePID(){
 		turnController.disable();
-	}
+  }
+  
 	public boolean onTarget(){
 		return turnController.onTarget();
 	}
@@ -472,6 +479,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     SmartDashboard.putNumber("Rotate Power", rotatePower);
     SmartDashboard.putData("turn controller",turnController);
   }
+  
   public void pidWrite(double output){
     rotatePower = output;
   }

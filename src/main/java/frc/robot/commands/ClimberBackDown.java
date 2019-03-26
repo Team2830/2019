@@ -7,15 +7,17 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
-public class Unclamp extends Command {
-  public Unclamp() {
+public class ClimberBackDown extends Command {
+  boolean done = false;
+
+  public ClimberBackDown() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.climber);
-  
   }
 
   // Called just before this Command runs the first time
@@ -26,13 +28,20 @@ public class Unclamp extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.climber.unClamp();
+    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+    Joystick driverStick = Robot.oi.getDriverJoystick();
+    if (operatorStick.getRawButton(7)){
+      if(driverStick.getRawButton(1)){
+        Robot.climber.backDown();
+      }
+    }
+    done = true;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
+    return done;
   }
 
   // Called once after isFinished returns true

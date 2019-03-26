@@ -73,11 +73,11 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     Robot.driveTrain.writeToSmartDashboard();
     Robot.vision.writeToSmartDashboard();
-    SmartDashboard.putNumber("PDP Current", pdp.getTotalCurrent());
-    SmartDashboard.putNumber("PDP Temp", pdp.getTemperature());
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+    // SmartDashboard.putNumber("PDP Current", pdp.getTotalCurrent());
+    // SmartDashboard.putNumber("PDP Temp", pdp.getTemperature());
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
   }
 
   /**
