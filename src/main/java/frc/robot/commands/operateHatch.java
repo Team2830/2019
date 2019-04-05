@@ -7,7 +7,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
@@ -26,17 +27,17 @@ public class operateHatch extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+    XboxController operatorController = Robot.oi.getOperatorController();
 
-    if(operatorStick.getRawButton(3)){
+    if(operatorController.getXButton()){
       Robot.hatch.hatchIn();
     }
 
-    if(operatorStick.getRawButton(4)){
+    if(operatorController.getYButton()){
       Robot.hatch.hatchOut();
     }
-    // if(Math.abs(operatorStick.getRawAxis(1)) > 0.2){
-    Robot.hatch.driveHatch(operatorStick.getRawAxis(1));
+    // if(Math.abs(operatorController.getRawAxis(1)) > 0.2){
+    Robot.hatch.driveHatch(operatorController.getY(GenericHID.Hand.kLeft));
     // }
   }
 

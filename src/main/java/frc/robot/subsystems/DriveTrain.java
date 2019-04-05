@@ -17,6 +17,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
@@ -24,6 +25,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import frc.robot.Robot;
 import frc.robot.commands.DriveCommand;
 
@@ -127,19 +130,19 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * TODO: Need Documentation Here
    * @param joystick
    */
-  public void tankDrive(Joystick joystick){
-    m_drive.tankDrive(-joystick.getRawAxis(5),-joystick.getRawAxis(1));
+  public void tankDrive(XboxController driverController){
+    m_drive.tankDrive(-driverController.getY(GenericHID.Hand.kRight),-driverController.getY(GenericHID.Hand.kLeft));
     //TODO: remove debugging SmartDashboard calls
-    SmartDashboard.putNumber("left Tank",-joystick.getRawAxis(5));
-    SmartDashboard.putNumber("right Tank",-joystick.getRawAxis(1));
+    SmartDashboard.putNumber("left Tank",-driverController.getY(GenericHID.Hand.kRight));
+    SmartDashboard.putNumber("right Tank",-driverController.getY(GenericHID.Hand.kLeft));
   }
 
   /**
    * TODO: Need Documentation Here
    */
-  public void arcadeDrive(Joystick joystick){
-    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
-    double steering = deadbanded(joystick.getRawAxis(0), joystickDeadband);
+  public void arcadeDrive(XboxController joystick){
+    double throttle = deadbanded((-1*joystick.getTriggerAxis(GenericHID.Hand.kLeft))+joystick.getTriggerAxis(GenericHID.Hand.kRight), joystickDeadband);
+    double steering = deadbanded(joystick.getX(GenericHID.Hand.kLeft), joystickDeadband);
     //TODO: remove debugging SmartDashboard calls
     SmartDashboard.putNumber("Throttle", throttle);
     SmartDashboard.putNumber("Steering", steering);
@@ -149,12 +152,12 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   /**
    * TODO: Need Documentation Here
    * 
-   * @param joystick
+   * @param driverController
    */
-  public void curvatureDrive(Joystick joystick){
-    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
-    double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
-    m_drive.curvatureDrive(throttle, steering, joystick.getRawButton(2));
+  public void curvatureDrive(XboxController driverController){
+    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
+    double steering = deadbanded(-driverController.getX(GenericHID.Hand.kLeft), joystickDeadband);
+    m_drive.curvatureDrive(throttle, steering, driverController.getBButton());
   }
 
   /**
@@ -163,14 +166,14 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * @param joystick
    * @return double[] 3 values, the direction, the leftSpeed and the right speed
    */
-  public double[] drive(Joystick joystick){
+  public double[] drive(XboxController driverController){
     turnController.disable();
     startingVisionDrive = true;
-    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
     if (Math.abs(throttle) > 1){
       throttle = Math.copySign(1, throttle);
     }
-    double steering = 0.6*deadbanded(-joystick.getRawAxis(0), joystickDeadband); 
+    double steering = 0.6*deadbanded(-driverController.getX(GenericHID.Hand.kRight), joystickDeadband); 
     double maxInput = Math.copySign(Math.max(Math.abs(throttle), Math.abs(steering)), throttle);
     double speed, direction;
     if (throttle >= 0){
@@ -213,9 +216,9 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * 
    * @param joystick
    */
-  public void visionDrive(Joystick joystick){
+  public void visionDrive(XboxController driverController){
     Update_Limelight_Tracking();
-    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
     m_drive.arcadeDrive(throttle, m_LimelightSteerCommand);
   }
 
@@ -316,6 +319,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   public void stopDriving(){
+    m_drive.stopMotor();
 		talonLeft.set(0);
 		talonRight.set(0);
   }

@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import frc.robot.commands.ClimberBackDown;
@@ -16,7 +17,6 @@ import frc.robot.commands.ClimberEnabled;
 import frc.robot.commands.ClimberFrontDown;
 import frc.robot.commands.ClimberFrontUp;
 import frc.robot.commands.FollowTrajectory;
-
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
@@ -48,41 +48,30 @@ public class OI {
   // Start the command when the button is released and let it run the command
   // until it is finished as determined by it's isFinished method.
   // button.whenReleased(new ExampleCommand());
-  public  Joystick joystick = new Joystick(0);
-  Joystick driverStick; 
-  Joystick operatorStick;
-  Button button0,button1,button2,button3, button4;
+ // public  Joystick joystick = new Joystick(0);
+ // Joystick driverStick; 
+ // Joystick operatorStick;
+  Button driverButtonA,driverButtonB,driverButtonX,driverButtonY, opStart;
+  XboxController driverController, operatorController;
 
 	// Start the command when the button is released and let it run the command
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
   
   public OI(){
-		driverStick = new Joystick(0);
-    operatorStick = new Joystick(1);
-
-    button0 = new JoystickButton(driverStick, 0);
-    button0.whenPressed(new ClimberBackDown());
+    driverController = new XboxController(0);
+    operatorController = new XboxController(1);
     
-    button1 = new JoystickButton(driverStick, 1);
-    button1.whenPressed(new ClimberBackUp());
-   // button1.whenPressed(new FollowTrajectory());//"/home/lvuser/deploy/straight7_right.csv","/home/lvuser/deploy/straight7_left.csv"));
-
-    button2 = new JoystickButton(driverStick, 2);
-    button2.whenPressed(new ClimberFrontDown());
-    button3 = new JoystickButton(driverStick, 3);
-    button3.whenPressed(new ClimberFrontUp());
-    button4 = new JoystickButton(operatorStick, 7);
-    button4.whenPressed(new ClimberEnabled());
+  //  // button1.whenPressed(new FollowTrajectory());//"/home/lvuser/deploy/straight7_right.csv","/home/lvuser/deploy/straight7_left.csv"));
 
   }
 
-	public Joystick getDriverJoystick(){
-		return driverStick;
+  public XboxController getDriverController(){
+    return driverController;
   }
-	
-	public Joystick getOperatorJoystick(){
-		return operatorStick;
+  
+  public XboxController getOperatorController(){
+    return operatorController;
   }
 
 }

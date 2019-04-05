@@ -7,7 +7,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
@@ -26,21 +28,21 @@ public class operateCargo extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Joystick operatorStick = Robot.oi.getOperatorJoystick();
+    XboxController operatorController = Robot.oi.getOperatorController();
 
-    if(operatorStick.getRawButton(1)){
+    if(operatorController.getBButton()){
       Robot.cargo.cargoIntakeIn();
-    } else if(operatorStick.getRawButton(2)){
+    } else if(operatorController.getAButton()){
       Robot.cargo.cargoIntakeOut();
     } else{
       Robot.cargo.stopCargoIntake();
     }
 
-    if(operatorStick.getRawAxis(3) > .3){
+    if(operatorController.getTriggerAxis(GenericHID.Hand.kRight) > .3){
       Robot.cargo.cargoUp();
     }
 
-    if(operatorStick.getRawAxis(2) > .3){
+    if(operatorController.getTriggerAxis(GenericHID.Hand.kLeft) > .3){
       Robot.cargo.cargoDown();
     }
   }

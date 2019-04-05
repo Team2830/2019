@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class operateClimber extends CommandGroup {
   public operateClimber() {
@@ -44,18 +45,20 @@ public class operateClimber extends CommandGroup {
     addSequential(new DriveDistance(5.125));
     addSequential(new ClimberBackDown());
     addSequential(new DriveDistance(10));*/
-    Joystick driverStick = Robot.oi.getDriverJoystick();
+    XboxController driverController = Robot.oi.getDriverController();
+    XboxController operatorController = Robot.oi.getOperatorController();
 
-    if(driverStick.getRawButton(1)){
-      Robot.climber.backDown();
-    } else if(driverStick.getRawButton(2)){
-      Robot.climber.backUp();}
-      else if(driverStick.getRawButton(3)){
-        Robot.climber.frontDown();}
-        else if(driverStick.getRawButton(4)){
-          Robot.climber.frontUp();
-        }
-      
+    if (operatorController.getStartButton()) {
+      if (driverController.getAButton()) {
+        Robot.climber.backDown();
+      } else if (driverController.getBButton()) {
+        Robot.climber.backUp();
+      } else if (driverController.getXButton()) {
+        Robot.climber.frontDown();
+      } else if (driverController.getYButton()) {
+        Robot.climber.frontUp();
+      }
+    }
     }
 
     // Make this return true when this Command no longer needs to run execute()

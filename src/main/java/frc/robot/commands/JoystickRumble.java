@@ -8,16 +8,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class JoystickRumble extends Command {
-  Joystick joystick;
+  XboxController joystick;
   int count = 0;
   public JoystickRumble(Joystick j) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-    joystick = j;
+   // joystick = j;
 
   }
 

@@ -8,6 +8,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 
@@ -28,10 +29,10 @@ public class ClimberBackUp extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Joystick operatorJoystick = Robot.oi.getOperatorJoystick();
-    Joystick driverStick = Robot.oi.getDriverJoystick();
-    if(operatorJoystick.getRawButton(7)){
-      if(driverStick.getRawButton(2)){
+    XboxController operatorController = Robot.oi.getOperatorController();
+    XboxController driverController = Robot.oi.getDriverController();
+    if(operatorController.getStartButton()){
+      if(driverController.getBButton()){
         Robot.climber.backUp();
       }
     }

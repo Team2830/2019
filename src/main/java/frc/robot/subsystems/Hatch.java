@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.operateHatch;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Spark;
 
@@ -25,7 +26,8 @@ public class Hatch extends Subsystem {
   boolean hatchIn = true;
   boolean hatchDown = false;
   boolean hatchUp = true;
-  
+  DigitalInput hatchDownLimit = new DigitalInput(1);
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
@@ -96,7 +98,11 @@ public class Hatch extends Subsystem {
    * Run hatch intake motor to set speed
    */
   public void driveHatch(double speed){
+    if(! hatchDownLimit.get() && speed > 0){
+      speed = 0;
+    }
     hatchIntake.set(speed);
+    SmartDashboard.putBoolean("Hatch Limit", hatchDownLimit.get());
   }
   
   /**
