@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
   public static Cargo cargo;
   public static Hatch hatch;
   public static Climber climber;
-  public static PowerDistributionPanel pdp = new PowerDistributionPanel();
+  //public static PowerDistributionPanel pdp = new PowerDistributionPanel();
 
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -57,8 +57,8 @@ public class Robot extends TimedRobot {
     oi = new OI();
     m_chooser.setDefaultOption("Default Auto", new DriveCommand());
     // chooser.addOption("My Auto", new MyAutoCommand());
-    SmartDashboard.putData("Auto mode", m_chooser);
-    Shuffleboard.startRecording();
+  //  SmartDashboard.putData("Auto mode", m_chooser);
+ //   Shuffleboard.startRecording();
   }
 
   /**
@@ -73,6 +73,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     Robot.driveTrain.writeToSmartDashboard();
     Robot.vision.writeToSmartDashboard();
+    Robot.hatch.writeToSmartDashboard();
     // SmartDashboard.putNumber("PDP Current", pdp.getTotalCurrent());
     // SmartDashboard.putNumber("PDP Temp", pdp.getTemperature());
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
@@ -109,7 +110,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
-    Shuffleboard.addEventMarker("Autonomous Started", EventImportance.kTrivial);
+ //   Shuffleboard.addEventMarker("Autonomous Started", EventImportance.kTrivial);
     m_autonomousCommand = m_chooser.getSelected();
 
     /*
@@ -140,7 +141,7 @@ public class Robot extends TimedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
-    Shuffleboard.addEventMarker("Teleop Started", EventImportance.kTrivial);
+  //  Shuffleboard.addEventMarker("Teleop Started", EventImportance.kTrivial);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

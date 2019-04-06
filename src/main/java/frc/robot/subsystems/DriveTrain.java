@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -16,17 +18,21 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
 import frc.robot.Robot;
 import frc.robot.commands.DriveCommand;
 
@@ -72,6 +78,14 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   double m_LimelightSteerCommand = 0.0;
 
   /**
+   * Setting up logging to the Shuffleboard
+   */
+ // private ShuffleboardTab shuffleboardTab;
+  // private NetworkTableEntry leftEncoderEntry =
+  // shuffleboardTab.add("Left Encoder", 0)
+  //         .getEntry();
+  NetworkTableEntry leftEncoderEntry, leftVelocityEntry, rightEncoderEntry, rightVelocityEntry;
+  /**
    * TODO: Need Documentation Here (what happens in the constructor)
    */
   public DriveTrain() {
@@ -112,8 +126,40 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     turnController.setAbsoluteTolerance(2.0f);
 
     m_drive = new DifferentialDrive(talonLeft, talonRight);
+    m_drive.setRightSideInverted(false);
     vision = Robot.vision;
     resetCounters();
+   // shuffleboardTab = Shuffleboard.getTab("Drivetrain");
+   ShuffleboardLayout leftDriveTrainList = Shuffleboard.getTab("Drive Train")
+    .getLayout("Left", BuiltInLayouts.kList)
+    .withSize(10,3)
+    .withPosition(0,0)
+    .withProperties(Map.of("Label position", "LEFT"));
+    ShuffleboardLayout rightDriveTrainList = Shuffleboard.getTab("Drive Train")
+    .getLayout("Right", BuiltInLayouts.kList)
+    .withSize(10,3)
+    .withPosition(0,3)
+    .withProperties(Map.of("Label position", "LEFT")); 
+    ShuffleboardLayout driveMappingList = Shuffleboard.getTab("Drive Train")
+    .getLayout("Mapping", BuiltInLayouts.kList)
+    .withSize(2,3)
+    .withPosition(10,3)
+    .withProperties(Map.of("Label position", "LEFT"));
+  // leftDriveTrainList.add("talonLeft", talonLeft).withWidget(BuiltInWidgets.kSpeedController);
+
+    leftEncoderEntry = leftDriveTrainList.add("Position",talonLeft.getSelectedSensorPosition()).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
+    leftVelocityEntry = leftDriveTrainList.add("Velocity",talonLeft.getSelectedSensorVelocity()).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
+    Shuffleboard.getTab("Drive Train").add("Gyro",ahrs).withWidget(BuiltInWidgets.kGyro);
+    rightEncoderEntry = rightDriveTrainList.add("Position",talonRight.getSelectedSensorPosition()).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
+    rightVelocityEntry = rightDriveTrainList.add("Velocity",talonRight.getSelectedSensorVelocity()).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
+   
+    driveMappingList.add("Left Talon CAN",talonLeft.getDeviceID());
+    driveMappingList.add("Right Talon CAN",talonRight.getDeviceID());
+    driveMappingList.add("Left Victor CAN",victorLeft.getDeviceID());
+    driveMappingList.add("Right Victor CAN",victorRight.getDeviceID());
+   
+    
+    // Shuffleboard.getTab("Drive Train").add("Drive",m_drive).withWidget(BuiltInWidgets.kDifferentialDrive);
   }
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
@@ -130,34 +176,34 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * TODO: Need Documentation Here
    * @param joystick
    */
-  public void tankDrive(XboxController driverController){
-    m_drive.tankDrive(-driverController.getY(GenericHID.Hand.kRight),-driverController.getY(GenericHID.Hand.kLeft));
+  public void tankDrive(XboxController joystick){
+    m_drive.tankDrive(-joystick.getRawAxis(5),-joystick.getRawAxis(1));
     //TODO: remove debugging SmartDashboard calls
-    SmartDashboard.putNumber("left Tank",-driverController.getY(GenericHID.Hand.kRight));
-    SmartDashboard.putNumber("right Tank",-driverController.getY(GenericHID.Hand.kLeft));
+    // SmartDashboard.putNumber("left Tank",-joystick.getRawAxis(5));
+    // SmartDashboard.putNumber("right Tank",-joystick.getRawAxis(1));
   }
 
   /**
    * TODO: Need Documentation Here
    */
   public void arcadeDrive(XboxController joystick){
-    double throttle = deadbanded((-1*joystick.getTriggerAxis(GenericHID.Hand.kLeft))+joystick.getTriggerAxis(GenericHID.Hand.kRight), joystickDeadband);
-    double steering = deadbanded(joystick.getX(GenericHID.Hand.kLeft), joystickDeadband);
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double steering = deadbanded(joystick.getRawAxis(0), joystickDeadband);
     //TODO: remove debugging SmartDashboard calls
-    SmartDashboard.putNumber("Throttle", throttle);
-    SmartDashboard.putNumber("Steering", steering);
+    // SmartDashboard.putNumber("Throttle", throttle);
+    // SmartDashboard.putNumber("Steering", steering);
     m_drive.arcadeDrive(throttle, steering);
   }
 
   /**
    * TODO: Need Documentation Here
    * 
-   * @param driverController
+   * @param joystick
    */
-  public void curvatureDrive(XboxController driverController){
-    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
-    double steering = deadbanded(-driverController.getX(GenericHID.Hand.kLeft), joystickDeadband);
-    m_drive.curvatureDrive(throttle, steering, driverController.getBButton());
+  public void curvatureDrive(XboxController joystick){
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
+    double steering = deadbanded(-joystick.getRawAxis(0), joystickDeadband);
+    m_drive.curvatureDrive(throttle, steering, joystick.getRawButton(2));
   }
 
   /**
@@ -166,14 +212,14 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * @param joystick
    * @return double[] 3 values, the direction, the leftSpeed and the right speed
    */
-  public double[] drive(XboxController driverController){
+  public double[] drive(XboxController joystick){
     turnController.disable();
     startingVisionDrive = true;
-    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     if (Math.abs(throttle) > 1){
       throttle = Math.copySign(1, throttle);
     }
-    double steering = 0.6*deadbanded(-driverController.getX(GenericHID.Hand.kRight), joystickDeadband); 
+    double steering = 0.6*deadbanded(-joystick.getRawAxis(0), joystickDeadband); 
     double maxInput = Math.copySign(Math.max(Math.abs(throttle), Math.abs(steering)), throttle);
     double speed, direction;
     if (throttle >= 0){
@@ -216,9 +262,9 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    * 
    * @param joystick
    */
-  public void visionDrive(XboxController driverController){
+  public void visionDrive(Joystick joystick){
     Update_Limelight_Tracking();
-    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft)+driverController.getTriggerAxis(GenericHID.Hand.kRight)), joystickDeadband);
+    double throttle = deadbanded((-1*joystick.getRawAxis(2))+joystick.getRawAxis(3), joystickDeadband);
     m_drive.arcadeDrive(throttle, m_LimelightSteerCommand);
   }
 
@@ -254,7 +300,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     }*/
     
     m_LimelightSteerCommand = steer_cmd;
-    SmartDashboard.putNumber("steerValue",m_LimelightSteerCommand);
+   // SmartDashboard.putNumber("steerValue",m_LimelightSteerCommand);
     
     // try to drive forward until the target area reaches our desired area
     double drive_cmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
@@ -319,7 +365,6 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   public void stopDriving(){
-    m_drive.stopMotor();
 		talonLeft.set(0);
 		talonRight.set(0);
   }
@@ -464,24 +509,26 @@ public class DriveTrain extends Subsystem implements PIDOutput {
    *  Writes to the dashboard values (can be used for debugging)
    */
   public void writeToSmartDashboard(){
-    SmartDashboard.putNumber("Left Encoder Distance", talonLeft.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Right Encoder Distance", talonRight.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Right Encoder Velocity", talonRight.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Left Encoder Velocity", talonLeft.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Left Talon Current", talonLeft.getOutputCurrent());
-    SmartDashboard.putNumber("Right Talon Current", talonRight.getOutputCurrent());
-    SmartDashboard.putNumber("LeftTalon Current", Robot.pdp.getCurrent(15));
-    SmartDashboard.putNumber("LeftVictor Current", Robot.pdp.getCurrent(14));
-    SmartDashboard.putNumber("RightTalon Current", Robot.pdp.getCurrent(1));
-    SmartDashboard.putNumber("RigtVictor Current", Robot.pdp.getCurrent(0));
-    SmartDashboard.putData(ahrs);
-    SmartDashboard.putNumber("Gyro", ahrs.getAngle());
-    SmartDashboard.putData(talonLeft);
-    SmartDashboard.putBoolean("Collision Detected", collisionDetected);
-    SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
-    SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
-    SmartDashboard.putNumber("Rotate Power", rotatePower);
-    SmartDashboard.putData("turn controller",turnController);
+    leftEncoderEntry.setDouble(talonLeft.getSelectedSensorPosition());
+    rightEncoderEntry.setDouble(talonRight.getSelectedSensorPosition());
+    // rightEncoderEntry.setDouble(talonRight.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Right Encoder Velocity", talonRight.getSelectedSensorVelocity());
+    leftVelocityEntry.setDouble(talonLeft.getSelectedSensorVelocity());
+    rightVelocityEntry.setDouble(talonRight.getSelectedSensorVelocity());
+    // SmartDashboard.putNumber("Left Talon Current", talonLeft.getOutputCurrent());
+    // SmartDashboard.putNumber("Right Talon Current", talonRight.getOutputCurrent());
+    // SmartDashboard.putNumber("LeftTalon Current", Robot.pdp.getCurrent(15));
+    // SmartDashboard.putNumber("LeftVictor Current", Robot.pdp.getCurrent(14));
+    // SmartDashboard.putNumber("RightTalon Current", Robot.pdp.getCurrent(1));
+    // SmartDashboard.putNumber("RigtVictor Current", Robot.pdp.getCurrent(0));
+    // SmartDashboard.putData(ahrs);
+    // SmartDashboard.putNumber("Gyro", ahrs.getAngle());
+    // SmartDashboard.putData(talonLeft);
+    // SmartDashboard.putBoolean("Collision Detected", collisionDetected);
+    // SmartDashboard.putNumber("Motor Output Precent", talonRight.getMotorOutputPercent());
+    // SmartDashboard.putNumber("Closed Loop Error", talonRight.getClosedLoopError(kPIDLoopIdx));
+    // SmartDashboard.putNumber("Rotate Power", rotatePower);
+    // SmartDashboard.putData("turn controller",turnController);
   }
   
   public void pidWrite(double output){

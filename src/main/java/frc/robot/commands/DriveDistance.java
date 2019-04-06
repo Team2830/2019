@@ -43,10 +43,10 @@ public class DriveDistance extends Command {
 
 	// Called just before this Command runs the first time
 	protected void initialize() {
-		System.out.println("drive: init: "+m_distance+", "+m_speed+", "+delay);
-		SmartDashboard.putString("Current Command", "Drive Forward");
-		Robot.driveTrain.resetCounters();
-		Robot.driveTrain.setOpenloopRamp(0);
+		// System.out.println("drive: init: "+m_distance+", "+m_speed+", "+delay);
+		// SmartDashboard.putString("Current Command", "Drive Forward");
+		 Robot.driveTrain.resetCounters();
+		 Robot.driveTrain.setOpenloopRamp(0);
 	}
 
 	// Called repeatedly when this Command is scheduled to run
@@ -84,8 +84,8 @@ public class DriveDistance extends Command {
        	if(m_distance <= 15){
        		v = .5;
        	}
-       	SmartDashboard.putNumber("Ramp Velocity", v);
-       	SmartDashboard.putNumber("Distance Driven", Robot.driveTrain.getInchesFromPulses(x));
+       	// SmartDashboard.putNumber("Ramp Velocity", v);
+       	// SmartDashboard.putNumber("Distance Driven", Robot.driveTrain.getInchesFromPulses(x));
        	
        	
     	Robot.driveTrain.driveStraight(v);
@@ -109,7 +109,7 @@ public class DriveDistance extends Command {
              ( Math.abs(currentJerkY) > kCollisionThreshold_DeltaG) ) {
             collisionDetected = true;
         }
-        SmartDashboard.putBoolean(  "CollisionDetected", collisionDetected);
+     //   SmartDashboard.putBoolean(  "CollisionDetected", collisionDetected);
         return collisionDetected;
 	}
 

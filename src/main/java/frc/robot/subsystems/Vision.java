@@ -93,10 +93,10 @@ public double get3DY(){
   
   }
   public void writeToSmartDashboard(){
-    SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
-    SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
-    SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
-    SmartDashboard.putNumber("LimelightGetDistance", getDistance());
+    // SmartDashboard.putBoolean("LimelightHasTargets", hasTargets());
+    // SmartDashboard.putNumber("LimelightVerticalOffset", getVerticalOffset());
+    // SmartDashboard.putNumber("LimelightHorizontalOffset", getHorizontalOffset());
+    // SmartDashboard.putNumber("LimelightGetDistance", getDistance());
     /** try {
       SmartDashboard.putNumber("Yaw", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[4]);
       SmartDashboard.putNumber("CamtranX", NetworkTableInstance.getDefault().getTable("limelight").getEntry("camtran").getDoubleArray(new double[]{})[0]);
