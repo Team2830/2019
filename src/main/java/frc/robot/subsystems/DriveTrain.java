@@ -98,7 +98,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     talonRight.enableCurrentLimit(true);
     talonRight.configOpenloopRamp(0.2, 0);
 
-    talonRight.setInverted(false);
+    talonRight.setInverted(true);
     talonLeft.setInverted(false);
     talonRight.setSensorPhase(false);
     talonLeft.setSensorPhase(true);
@@ -112,6 +112,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     turnController.setAbsoluteTolerance(2.0f);
 
     m_drive = new DifferentialDrive(talonLeft, talonRight);
+    m_drive.setRightSideInverted(true);
     vision = Robot.vision;
     resetCounters();
   }
@@ -127,7 +128,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   /**
-   * TODO: Need Documentation Here
+   * Has the robot drive in a certain style.
    * @param joystick
    */
   public void tankDrive(XboxController driverController){
@@ -138,7 +139,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   /**
-   * TODO: Need Documentation Here
+   * Has the robot drive in another certain style.
    */
   public void arcadeDrive(XboxController joystick){
     double throttle = deadbanded((-1*joystick.getTriggerAxis(GenericHID.Hand.kLeft))+joystick.getTriggerAxis(GenericHID.Hand.kRight), joystickDeadband);
@@ -150,7 +151,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   /**
-   * TODO: Need Documentation Here
+   * Has the robot drive in a different style.
    * 
    * @param driverController
    */
@@ -267,7 +268,8 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
 
   /**
-   * TODO: Need Documentation Here
+   * Resets gyro and encoders everytime the robot is enabled,
+   * Used for making accurate measurements.
    */
   public void resetCounters(){
     ahrs.zeroYaw();
@@ -325,7 +327,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
   
   public void setRight(double output){
-		talonRight.set(-output);
+		talonRight.set(output);
   }
   
 	public void setLeft(double output){
@@ -358,8 +360,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
   
   /**
-   * TODO: Need Documentation Here
-   * 
+   * Makes sure that when the robot hits something that it won't keep going.
    */
   public void DetectCollision(){
     double lastWorldLinearAccelX = 0;
