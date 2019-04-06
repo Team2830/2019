@@ -8,6 +8,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.commands.operateCargo;
@@ -19,11 +25,24 @@ import frc.robot.commands.operateCargo;
 public class Cargo extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  static DoubleSolenoid cargoSolenoid = new DoubleSolenoid(0, 1);
+  static private final int forwardChannel = 0;
+  static private final int reverseChannel = 1;
+  static DoubleSolenoid cargoSolenoid = new DoubleSolenoid(forwardChannel, reverseChannel);
   static Spark cargoIntakeFront = new Spark(0);
   static Spark cargoIntakeBack = new Spark(1);
   boolean cargoUp = true;
-  
+//  NetworkTableEntry leftEncoderEntry, leftVelocityEntry, rightEncoderEntry, rightVelocityEntry;
+  public Cargo(){
+    ShuffleboardLayout cargoMappingList = Shuffleboard.getTab("Cargo")
+    .getLayout("Mapping", BuiltInLayouts.kList)
+    .withSize(2,5)
+    .withPosition(0,0)
+    .withProperties(Map.of("Label position", "LEFT"));
+    cargoMappingList.add("Front Motor", cargoIntakeFront.getChannel());
+    cargoMappingList.add("Back Motor", cargoIntakeFront.getChannel());
+    cargoMappingList.add("Solenoid Forward Chan", forwardChannel);
+    cargoMappingList.add("Solenoid Reverse Chan", reverseChannel);
+  }
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
