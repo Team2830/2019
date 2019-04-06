@@ -128,7 +128,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     turnController.setAbsoluteTolerance(2.0f);
 
     m_drive = new DifferentialDrive(talonLeft, talonRight);
-    m_drive.setRightSideInverted(true);
+    m_drive.setRightSideInverted(false);
     vision = Robot.vision;
     resetCounters();
    // shuffleboardTab = Shuffleboard.getTab("Drivetrain");
@@ -188,9 +188,9 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   /**
    * Has the robot drive in another certain style.
    */
-  public void arcadeDrive(XboxController joystick){
-    double throttle = deadbanded((-1*joystick.getTriggerAxis(GenericHID.Hand.kLeft))+joystick.getTriggerAxis(GenericHID.Hand.kRight), joystickDeadband);
-    double steering = deadbanded(joystick.getX(GenericHID.Hand.kLeft), joystickDeadband);
+  public void arcadeDrive(XboxController driverController){
+    double throttle = deadbanded((-1*driverController.getTriggerAxis(GenericHID.Hand.kLeft))+driverController.getTriggerAxis(GenericHID.Hand.kRight), joystickDeadband);
+    double steering = deadbanded(driverController.getX(GenericHID.Hand.kLeft), joystickDeadband);
     //TODO: remove debugging SmartDashboard calls
     // SmartDashboard.putNumber("Throttle", throttle);
     // SmartDashboard.putNumber("Steering", steering);
@@ -373,7 +373,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
   
   public void setRight(double output){
-		talonRight.set(output);
+		talonRight.set(-output);
   }
   
 	public void setLeft(double output){

@@ -7,8 +7,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -27,6 +32,16 @@ public class Vision extends Subsystem {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
 
+
+    ShuffleboardLayout visionMappingList = Shuffleboard.getTab("Vision")
+    .getLayout("Mapping", BuiltInLayouts.kList)
+    .withSize(2, 5)
+    .withPosition(0, 0)
+    .withProperties(Map.of("Lable position", "LEFT"));
+    visionMappingList.add("Has Targets", hasTargets());
+    visionMappingList.add("Vertical Offset", getVerticalOffset());
+    visionMappingList.add("Horizontal Offset", getHorizontalOffset());
+    visionMappingList.add("Get Distance", getDistance());
   }
 
   @Override
