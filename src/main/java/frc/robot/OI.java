@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.ButtonMonitor;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.buttons.Button;
@@ -51,7 +53,7 @@ public class OI {
  // public  Joystick joystick = new Joystick(0);
  // Joystick driverStick; 
  // Joystick operatorStick;
-  Button driverButtonA,driverButtonB,driverButtonX,driverButtonY, opStart;
+  Button driverButtonA,driverButtonB,driverButtonX,driverButtonY, backButton;
   XboxController driverController, operatorController;
 
 	// Start the command when the button is released and let it run the command
@@ -61,9 +63,15 @@ public class OI {
   public OI(){
     driverController = new XboxController(0);
     operatorController = new XboxController(1);
+    backButton = new JoystickButton(driverController, 8);
+  // button1.whenPressed(new FollowTrajectory());//"/home/lvuser/deploy/righthab2torightfrontcargo_right.csv","/home/lvuser/deploy/righthab2torightfrontcargo_left.csv"));
     
-  //  // button1.whenPressed(new FollowTrajectory());//"/home/lvuser/deploy/straight7_right.csv","/home/lvuser/deploy/straight7_left.csv"));
-
+  backButton.whenPressed(new FollowTrajectory("/home/lvuser/deploy/righthab2torightfrontcargo_left.csv","/home/lvuser/deploy/righthab2torightfrontcargo_right.csv"));
+  //backButton.whenPressed(new FollowTrajectory());
+  //"home/lvuser/deploy/straight7_right.csv", "home/lvuser/deploy/straight7_left.csv"));
+ /** if (driverController.getBackButton()){
+      new FollowTrajectory();
+    }*/
   }
 
   public XboxController getDriverController(){

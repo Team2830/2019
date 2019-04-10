@@ -9,9 +9,16 @@ package frc.robot.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
 import jaci.pathfinder.Pathfinder;
@@ -29,13 +36,17 @@ public class FollowTrajectory extends Command {
   Notifier periodicRunnable;
   Trajectory leftTrajectory;
   Trajectory rightTrajectory;
-	
+	double positionDifferenceLeft = 0;
+	double positionDifferenceRight = 0;
+	double angleDifference = 0;
+	NetworkTableEntry leftSideEntry, rightSideEntry, angleEntry;
+
   public FollowTrajectory() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-    this("/home/lvuser/deploy/rightcargo1_left.csv", "/home/lvuser/deploy/rightcargo1_right.csv");
-    
-  }
+	this("/home/lvuser/deploy/rightcargo1_left.csv", "/home/lvuser/deploy/rightcargo1_right.csv");
+//	Robot.driveTrain.m_drive.close();
+}
 
   public FollowTrajectory(String leftPathFile, String rightPathFile) {
       // Use requires() here to declare subsystem dependencies
@@ -43,7 +54,18 @@ public class FollowTrajectory extends Command {
     requires(Robot.driveTrain);
 	leftTrajectoryPathFile = new File(leftPathFile);
 	rightTrajectoryPathFile = new File(rightPathFile);
-  }
+
+	
+    ShuffleboardLayout followTrajectoryMappingList = Shuffleboard.getTab("Motion")
+    .getLayout("Left", BuiltInLayouts.kList)
+    .withSize(10,4)
+    .withPosition(0,0)
+    .withProperties(Map.of("Label position", "LEFT"));
+
+    leftSideEntry = followTrajectoryMappingList.add("Left Position Difference", positionDifferenceLeft).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
+	rightSideEntry = followTrajectoryMappingList.add("Right Position Difference", positionDifferenceRight).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
+	angleEntry = followTrajectoryMappingList.add("Angle Difference", angleDifference).withWidget(BuiltInWidgets.kGraph).withPosition(0,2).getEntry();
+}
   // Called just before this Command runs the first time
   protected void initialize() {
     Robot.driveTrain.resetCounters();
@@ -98,8 +120,11 @@ public class FollowTrajectory extends Command {
     	 The fourth argument is the velocity ratio. This is 1 over the maximum velocity you provided in the 
     	      trajectory configuration (it translates m/s to a -1 to 1 scale that your motors can read)
     	 The fifth argument is your acceleration gain. Tweak this if you want to get to a higher or lower speed quicker*/
-    	left.configurePIDVA(3.6, 0.0, 0.2, 1/10.36, .1);
-    	right.configurePIDVA(3.6, 0.0, 0.2, 1/10.36, .1);
+    	//left.configurePIDVA(3.6, 0.0, 0.2, 1/10.36, .2);
+    	//right.configurePIDVA(3.6, 0.0, 0.2, 1/10.36, .2);
+		
+		left.configurePIDVA(3.6, 0.0, 0, 1/6, .1);
+    	right.configurePIDVA(3.6, 0.0, 0, 1/6, .1);
     	
 
         // Initialize the Notifier
@@ -146,27 +171,35 @@ public class FollowTrajectory extends Command {
         	double l = left.calculate(Robot.driveTrain.getEncoderValue(DriveTrain.LEFT_ENCODER));
         	double r = right.calculate(Robot.driveTrain.getEncoderValue(DriveTrain.RIGHT_ENCODER));
 
+		//	leftSideEntry.setDouble(left.getSegment().position -  (Robot.driveTrain.getInchesFromPulses(Robot.driveTrain.getEncoderValue(DriveTrain.LEFT_ENCODER))/12));
+	//		rightSideEntry.setDouble(right.getSegment().position - (Robot.driveTrain.getInchesFromPulses(Robot.driveTrain.getEncoderValue(DriveTrain.RIGHT_ENCODER))/12));
+		
 
         	double gyro_heading = Robot.driveTrain.getAngle();    // Assuming the gyro is giving a value in degrees
         	double desired_heading = Pathfinder.r2d(left.getHeading());  // Should also be in degrees
 
         	double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
 			double turn =  0.8 * (-1.0/80.0) * angleDifference;
+		//	angleEntry.setDouble(angleDifference);
 
         	Robot.driveTrain.setLeft(l + turn);
         	Robot.driveTrain.setRight(r - turn);
         	
-        	if (counter % 10 == 0 && !left.isFinished() && !right.isFinished()){
+//        	if (counter % 10 == 0 && !left.isFinished() && !right.isFinished()){
         	//	System.out.printf("Left Vel: %f\t", left.getSegment().velocity); 
 			//	System.out.printf("Left Acc: %f\t", left.getSegment().acceleration);
-			System.out.printf("gyro: %f\t", Robot.driveTrain.getAngle());
-				System.out.printf("Left Pos: %f\t", left.getSegment().position);
-				System.out.printf("L: %f\t", l);
-				System.out.printf ("left enc: %d\t",Robot.driveTrain.getEncoderValue(DriveTrain.LEFT_ENCODER));
-				System.out.printf("Right Pos: %f\t", right.getSegment().position);
-				System.out.printf("R: %f\t", r);
-        		System.out.printf("right enc: %d\t",Robot.driveTrain.getEncoderValue(DriveTrain.RIGHT_ENCODER));
-				
+			// System.out.printf("gyro: %f\t", Robot.driveTrain.getAngle());
+			// 	System.out.printf("Left Pos: %f\t", left.getSegment().position);
+			// 	System.out.printf("L: %f\t", l);
+			// 	System.out.printf ("left enc: %d\t",Robot.driveTrain.getEncoderValue(DriveTrain.LEFT_ENCODER));
+			// 	System.out.printf("Right Pos: %f\t", right.getSegment().position);
+			// 	System.out.printf("R: %f\t", r);
+        	// 	System.out.printf("right enc: %d\t",Robot.driveTrain.getEncoderValue(DriveTrain.RIGHT_ENCODER));
+			// 	System.out.printf("Left Vel: %f\t", left.getSegment().velocity);
+			// 	System.out.printf("Right Vel: %f\t", right.getSegment().velocity);
+			// 	System.out.printf("Left Acc: %f\t", left.getSegment().acceleration);
+			// 	System.out.printf("Right Acc: %f\t", right.getSegment().acceleration);
+
      //   		System.out.printf("Left Encoder: %d\t", Robot.driveTrain.getEncoderValue(DriveTrain.LEFT_ENCODER));
      //   		System.out.printf("Left Output: %f\t", l);
 //        		System.out.printf("R-Y: %f\t", right.getSegment().y );
@@ -178,10 +211,10 @@ public class FollowTrajectory extends Command {
         	//	System.out.printf("Right Output: %f\t", r);
         	//	System.out.printf("Angle Diff: %f\t",angleDifference);
         	//	System.out.printf("angle correction: %f\n", turn);
-        		System.out.println("end");
-        	}
-        	counter++;
-        	Robot.driveTrain.writeToSmartDashboard();
+  //      		System.out.println("end");
+    //    	}
+      //  	counter++;
+        //	Robot.driveTrain.writeToSmartDashboard();
         }
     }
 }

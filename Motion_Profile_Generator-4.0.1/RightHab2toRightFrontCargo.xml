@@ -10,13 +10,8 @@
         <Angle>0.0</Angle>
     </Waypoint>
     <Waypoint>
-        <X>19.0</X>
-        <Y>7.0</Y>
+        <X>18.0</X>
+        <Y>12.5</Y>
         <Angle>0.0</Angle>
-    </Waypoint>
-    <Waypoint>
-        <X>23.9</X>
-        <Y>10.2</Y>
-        <Angle>90.0</Angle>
     </Waypoint>
 </Path>

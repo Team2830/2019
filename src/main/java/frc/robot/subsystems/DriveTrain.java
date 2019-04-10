@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import frc.robot.Robot;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.FollowTrajectory;
 
 /**
  * TODO: Need Documentation Here
@@ -48,7 +49,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   static WPI_VictorSPX victorLeft;
   static WPI_VictorSPX victorRight;
   static AHRS ahrs;
-  static DifferentialDrive m_drive;
+  public static DifferentialDrive m_drive;
   int collisionCount = 0;
   boolean collisionDetected = false;
   PIDController turnController;
@@ -116,7 +117,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
 
     talonRight.setInverted(true);
     talonLeft.setInverted(false);
-    talonRight.setSensorPhase(false);
+    talonRight.setSensorPhase(true);
     talonLeft.setSensorPhase(true);
     victorLeft.follow(talonLeft);
     victorRight.follow(talonRight);
@@ -129,6 +130,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
 
     m_drive = new DifferentialDrive(talonLeft, talonRight);
     m_drive.setRightSideInverted(false);
+    m_drive.setSafetyEnabled(false);
     vision = Robot.vision;
     resetCounters();
    // shuffleboardTab = Shuffleboard.getTab("Drivetrain");
@@ -159,7 +161,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     driveMappingList.add("Right Talon CAN",talonRight.getDeviceID());
     driveMappingList.add("Left Victor CAN",victorLeft.getDeviceID());
     driveMappingList.add("Right Victor CAN",victorRight.getDeviceID());
-   
+
     
     // Shuffleboard.getTab("Drive Train").add("Drive",m_drive).withWidget(BuiltInWidgets.kDifferentialDrive);
   }
@@ -373,7 +375,7 @@ public class DriveTrain extends Subsystem implements PIDOutput {
   }
   
   public void setRight(double output){
-		talonRight.set(-output);
+		talonRight.set(output);
   }
   
 	public void setLeft(double output){
