@@ -28,12 +28,12 @@ public class Vision extends Subsystem {
   double verticalOffset = 0;
 
   public Vision(){
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
 
 
-    ShuffleboardLayout visionMappingList = Shuffleboard.getTab("Vision")
+     ShuffleboardLayout visionMappingList = Shuffleboard.getTab("Vision")
     .getLayout("Mapping", BuiltInLayouts.kList)
     .withSize(2, 5)
     .withPosition(0, 0)

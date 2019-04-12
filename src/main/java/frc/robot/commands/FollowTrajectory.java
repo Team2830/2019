@@ -56,7 +56,7 @@ public class FollowTrajectory extends Command {
 	rightTrajectoryPathFile = new File(rightPathFile);
 
 	
-    ShuffleboardLayout followTrajectoryMappingList = Shuffleboard.getTab("Motion")
+    /** ShuffleboardLayout followTrajectoryMappingList = Shuffleboard.getTab("Motion")
     .getLayout("Left", BuiltInLayouts.kList)
     .withSize(10,4)
     .withPosition(0,0)
@@ -69,7 +69,7 @@ public class FollowTrajectory extends Command {
   // Called just before this Command runs the first time
   protected void initialize() {
     Robot.driveTrain.resetCounters();
-    Robot.driveTrain.writeToSmartDashboard();
+    Robot.driveTrain.writeToSmartDashboard();*/
 /*
 * 		We aren't using waypoints here to generate the path dynamically, but if we did, this is how you would do it.
   Waypoint[] points = new Waypoint[] {

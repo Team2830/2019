@@ -33,13 +33,13 @@ public class Cargo extends Subsystem {
   boolean cargoUp = true;
 //  NetworkTableEntry leftEncoderEntry, leftVelocityEntry, rightEncoderEntry, rightVelocityEntry;
   public Cargo(){
-    ShuffleboardLayout cargoMappingList = Shuffleboard.getTab("Cargo")
+     ShuffleboardLayout cargoMappingList = Shuffleboard.getTab("Cargo")
     .getLayout("Mapping", BuiltInLayouts.kList)
     .withSize(2,5)
     .withPosition(0,0)
     .withProperties(Map.of("Label position", "LEFT"));
     cargoMappingList.add("Front Motor", cargoIntakeFront.getChannel());
-    cargoMappingList.add("Back Motor", cargoIntakeFront.getChannel());
+    cargoMappingList.add("Back Motor", cargoIntakeBack.getChannel());
     cargoMappingList.add("Solenoid Forward Chan", forwardChannel);
     cargoMappingList.add("Solenoid Reverse Chan", reverseChannel);
   }

@@ -151,11 +151,11 @@ public class DriveTrain extends Subsystem implements PIDOutput {
     .withProperties(Map.of("Label position", "LEFT"));
   // leftDriveTrainList.add("talonLeft", talonLeft).withWidget(BuiltInWidgets.kSpeedController);
 
-    leftEncoderEntry = leftDriveTrainList.add("Position",talonLeft.getSelectedSensorPosition()).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
-    leftVelocityEntry = leftDriveTrainList.add("Velocity",talonLeft.getSelectedSensorVelocity()).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
+    leftEncoderEntry = leftDriveTrainList.add("Position",0).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
+    leftVelocityEntry = leftDriveTrainList.add("Velocity",0).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
     Shuffleboard.getTab("Drive Train").add("Gyro",ahrs).withWidget(BuiltInWidgets.kGyro);
-    rightEncoderEntry = rightDriveTrainList.add("Position",talonRight.getSelectedSensorPosition()).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
-    rightVelocityEntry = rightDriveTrainList.add("Velocity",talonRight.getSelectedSensorVelocity()).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
+    rightEncoderEntry = rightDriveTrainList.add("Position",0).withWidget(BuiltInWidgets.kGraph).withPosition(0,0).getEntry();
+    rightVelocityEntry = rightDriveTrainList.add("Velocity",0).withWidget(BuiltInWidgets.kGraph).withPosition(0,1).getEntry();
    
     driveMappingList.add("Left Talon CAN",talonLeft.getDeviceID());
     driveMappingList.add("Right Talon CAN",talonRight.getDeviceID());

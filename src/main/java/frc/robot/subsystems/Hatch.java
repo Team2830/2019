@@ -40,7 +40,7 @@ public class Hatch extends Subsystem {
   NetworkTableEntry hatchDownEntry, hatchInEntry;
 
   public Hatch(){
-    ShuffleboardLayout hatchMappingList = Shuffleboard.getTab("Hatch")
+     ShuffleboardLayout hatchMappingList = Shuffleboard.getTab("Hatch")
     .getLayout("Mapping", BuiltInLayouts.kList)
     .withSize(2,5)
     .withPosition(0,0)
@@ -52,7 +52,6 @@ public class Hatch extends Subsystem {
     Shuffleboard.getTab("Hatch").add("Hatch Motor",hatchIntake).withPosition(2,0).withWidget(BuiltInWidgets.kSpeedController);
     hatchInEntry = Shuffleboard.getTab("Hatch").add("Hatch in",hatchIn).withPosition(2,1).getEntry();
     hatchDownEntry = Shuffleboard.getTab("Hatch").add("Hatch Down",hatchDown).withPosition(3,1).getEntry();
-    hatchInEntry = Shuffleboard.getTab("Driver View").add("Hatch in",hatchIn).withPosition(1,5).getEntry();
   }
   @Override
   public void initDefaultCommand() {
@@ -155,8 +154,8 @@ public class Hatch extends Subsystem {
     hatchIntake.stopMotor();
   }  
 
-  public void writeToSmartDashboard(){
-    hatchDownEntry.setBoolean(hatchDown);
+   public void writeToSmartDashboard(){
+     hatchDownEntry.setBoolean(hatchDown);
     hatchInEntry.setBoolean(hatchIn);
   }
 }
